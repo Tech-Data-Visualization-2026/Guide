@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>데이터시각화 — Python 분석 환경과 NumPy 배열 기초</title>
+  <meta name="description" content="데이터시각화 2주차 강의 슬라이드 24장">
+  <style>
+    :root {
+      --parchment:#f5f4ed; --ivory:#faf9f5; --sand:#e8e6dc; --sand-dark:#d8d5c7;
+      --ink:#1b365d; --ink-light:#b5c8dc; --near:#141413; --warm:#3d3d3a;
+      --olive:#504e49; --stone:#6b6a64; --tag:#e4ecf5;
+      --serif:"Noto Serif KR","Source Han Serif K","NanumMyeongjo",Georgia,serif;
+      --sans:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+      --mono:"JetBrains Mono",D2Coding,monospace;
+    }
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden}
+    body{background:#111b29;color:var(--near);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+    button{font:inherit}
+    #viewport{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+    #stage{width:1920px;height:1080px;position:relative;overflow:hidden;transform-origin:center;background:var(--parchment);box-shadow:0 24px 80px rgba(0,0,0,.28)}
+    #deck{position:absolute;inset:0}
+    .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:78px 96px 72px;overflow:hidden;background:var(--parchment)}
+    .slide.active{display:flex}.slide.dark{background:var(--ink);color:var(--ivory)}
+    .slide::after{content:"";position:absolute;width:430px;height:430px;right:-250px;bottom:-260px;border:1px solid var(--sand-dark);border-radius:50%;pointer-events:none}
+    .dark::after{border-color:rgba(250,249,245,.13)}
+    .chrome{position:absolute;top:28px;left:96px;right:96px;display:flex;justify-content:space-between;align-items:center;font:18px var(--mono);letter-spacing:.08em;color:var(--stone);z-index:3}
+    .dark .chrome{color:rgba(250,249,245,.62)}
+    .brand{display:flex;align-items:center;gap:14px}.mark{display:grid;place-items:center;width:34px;height:34px;border:1px solid currentColor;border-radius:50%;font:18px var(--serif)}
+    .slide-foot{position:absolute;left:96px;right:96px;bottom:24px;display:flex;justify-content:space-between;align-items:center;color:var(--stone);font:18px var(--mono);letter-spacing:.04em;z-index:3}
+    .dark .slide-foot{color:rgba(250,249,245,.62)}
+    .counter{min-width:94px;text-align:center;padding:7px 12px;border:1px solid var(--sand-dark);border-radius:4px;background:var(--ivory);color:var(--near);font-variant-numeric:tabular-nums}
+    .dark .counter{color:var(--ivory);background:transparent;border-color:rgba(250,249,245,.28)}
+    .slide-inner{width:100%;height:100%;min-height:0;display:grid;align-content:center;gap:34px;position:relative;z-index:2}
+    h1,h2,h3,p{margin:0}h1,h2,h3{font-family:var(--serif);font-weight:500}
+    h1{font-size:82px;line-height:1.12;letter-spacing:-.035em}h2{font-size:54px;line-height:1.18;letter-spacing:-.025em}h3{font-size:33px;line-height:1.3}
+    .section-num,.eyebrow{font:20px/1.2 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--ink)}
+    .dark .section-num,.dark .eyebrow{color:rgba(250,249,245,.68)}
+    .lede{font:32px/1.48 var(--serif);color:var(--olive)}.dark .lede{color:rgba(250,249,245,.75)}
+    .body{font-size:29px;line-height:1.48;color:var(--warm)}.muted{color:var(--olive)}.hl{color:var(--ink-light)}
+    code,.code{font-family:var(--mono)}code{padding:2px 7px;background:var(--tag);color:var(--ink);border-radius:3px;font-size:.88em}
+    pre{margin:0;white-space:pre-wrap;font:22px/1.55 var(--mono);color:var(--near)}
+    ul.dash{list-style:none;padding:0;margin:0;display:grid;gap:13px}
+    ul.dash li{position:relative;padding-left:24px;font-size:28px;line-height:1.43;color:var(--warm)}
+    ul.dash li::before{content:"–";position:absolute;left:0;color:var(--ink)}
+    .cover .slide-inner{grid-template-columns:1.08fr .92fr;gap:90px;align-items:center}
+    .cover h1{color:var(--ivory)}.cover .summary-box{border-top:1px solid rgba(250,249,245,.28);padding-top:34px;display:grid;gap:24px}
+    .cover .summary-box b{font:500 34px var(--serif);color:var(--ivory)}
+    .cover .summary-box p{font-size:27px;line-height:1.45;color:rgba(250,249,245,.72)}
+    .title-block{display:grid;gap:16px}.title-block h2{max-width:24ch}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:60px}.two.wide-left{grid-template-columns:1.15fr .85fr}.two.wide-right{grid-template-columns:.85fr 1.15fr}
+    .three{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.four{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--sand-dark);border-bottom:1px solid var(--sand-dark)}
+    .panel{background:var(--ivory);border-top:2px solid var(--ink);padding:34px 36px;min-height:310px}.panel h3{color:var(--ink);margin-bottom:18px}.panel p{font-size:26px;line-height:1.45;color:var(--warm)}
+    .metric{padding:30px 25px;border-right:1px solid var(--sand-dark);min-height:260px}.metric:last-child{border-right:0}.metric b{display:block;font:500 56px var(--serif);color:var(--ink);margin-bottom:16px}.metric h3{font-size:30px;margin-bottom:10px}.metric p{font-size:23px;line-height:1.4;color:var(--olive)}
+    .process{display:grid;grid-template-columns:repeat(6,1fr);align-items:stretch;border-top:1px solid var(--sand-dark);border-bottom:1px solid var(--sand-dark)}
+    .step{position:relative;padding:28px 20px;min-height:210px;border-right:1px solid var(--sand-dark)}.step:last-child{border-right:0}.step b{display:block;font:500 44px var(--serif);color:var(--ink);margin-bottom:18px}.step span{font-size:24px;line-height:1.4}
+    .loop{font:23px var(--mono);color:var(--ink);text-align:center;letter-spacing:.04em}
+    .table{display:grid;border-top:1px solid var(--sand-dark);border-left:1px solid var(--sand-dark)}.table.four-col{grid-template-columns:1fr 1.2fr 1.5fr}.table.two-col{grid-template-columns:1fr 2fr}
+    .cell{padding:20px 24px;border-right:1px solid var(--sand-dark);border-bottom:1px solid var(--sand-dark);font-size:25px;line-height:1.35}.cell.head{font-family:var(--serif);font-weight:500;color:var(--ink);background:var(--ivory)}
+    .codebox{background:var(--ivory);border:1px solid var(--sand-dark);padding:30px 34px}.codebox .label{font:18px var(--mono);color:var(--ink);margin-bottom:19px;letter-spacing:.06em}
+    .code-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+    .file-flow{display:grid;grid-template-columns:1fr 90px 1fr;gap:24px;align-items:center}.file-node{background:var(--ivory);border:1px solid var(--sand-dark);padding:34px;font:23px/1.55 var(--mono)}.arrow{font:500 66px var(--serif);color:var(--ink);text-align:center}
+    .image-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:60px;align-items:center}.figure{margin:0;background:var(--ivory);border:1px solid var(--sand-dark);padding:24px}.figure img{display:block;width:100%;max-height:600px;object-fit:contain}.figure figcaption{font:18px var(--mono);color:var(--stone);margin-top:14px}
+    .decision{display:grid;grid-template-columns:1fr 80px 1fr;align-items:stretch;gap:26px}.decision .problem,.decision .solution{padding:40px;background:var(--ivory);border-top:2px solid var(--ink)}.decision .bridge{display:grid;place-items:center;font:500 56px var(--serif);color:var(--ink)}
+    .decision h3{color:var(--ink);margin-bottom:20px}.decision p{font-size:27px;line-height:1.48;color:var(--warm)}
+    .array{display:inline-grid;grid-auto-flow:column;grid-auto-columns:minmax(72px,1fr);border:1px solid var(--sand-dark);background:var(--ivory)}.array span{display:grid;place-items:center;min-height:68px;padding:8px;border-right:1px solid var(--sand-dark);font:25px var(--mono)}.array span:last-child{border-right:0}
+    .matrix-array{display:grid;grid-template-columns:repeat(3,1fr);width:100%;border-top:1px solid var(--sand-dark);border-left:1px solid var(--sand-dark);background:var(--ivory)}.matrix-array span{display:grid;place-items:center;min-height:68px;border-right:1px solid var(--sand-dark);border-bottom:1px solid var(--sand-dark);font:25px var(--mono)}
+    .shape-label{font:20px var(--mono);color:var(--stone);margin-top:12px}
+    .before-after{display:grid;grid-template-columns:1fr 90px 1fr;gap:25px;align-items:center}.state{background:var(--ivory);border-top:2px solid var(--ink);padding:34px}.state h3{color:var(--ink);margin-bottom:24px}.state p{font-size:26px;line-height:1.5;color:var(--warm)}
+    .memory{display:grid;grid-template-columns:1fr 1fr;gap:40px}.memory .panel{min-height:360px}.memory-path{font:22px/1.7 var(--mono);color:var(--ink);margin-top:28px}
+    .mini-chart{height:330px;background:var(--ivory);border-left:2px solid var(--near);border-bottom:2px solid var(--near);position:relative;margin:25px 30px 20px 50px}.mini-chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+    .checklist{counter-reset:item;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.check{padding:28px;background:var(--ivory);border-bottom:3px solid var(--ink);min-height:220px}.check::before{counter-increment:item;content:"0" counter(item);display:block;font:500 42px var(--serif);color:var(--ink);margin-bottom:18px}.check b{font:500 29px var(--serif);display:block;margin-bottom:12px}.check p{font-size:23px;line-height:1.4;color:var(--olive)}
+    .end .slide-inner{align-content:end;padding-bottom:70px}.end h2{font-size:76px;color:var(--ivory);max-width:20ch}.takeaways{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(250,249,245,.25);margin-top:28px}.takeaways div{padding:28px 34px;border-right:1px solid rgba(250,249,245,.18);font-size:25px;line-height:1.45;color:rgba(250,249,245,.72)}.takeaways div:last-child{border-right:0}
+    #nav{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:8}
+    #nav button{width:9px;height:9px;padding:0;border:0;border-radius:99px;background:#dbe1e7;cursor:pointer}#nav button.active{width:25px;background:var(--ink)}
+    #progress{position:absolute;bottom:0;left:0;height:3px;background:var(--ink);z-index:9;transition:width .25s}
+    #overview{position:absolute;inset:0;display:none;z-index:20;background:rgba(245,244,237,.98);padding:54px 64px;overflow:auto}#overview.open{display:block}
+    .overview-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;font:18px var(--mono);color:var(--stone)}
+    .overview-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}.overview-card{min-height:126px;text-align:left;padding:18px;border:1px solid var(--sand-dark);background:var(--ivory);color:var(--near);cursor:pointer}.overview-card.active{border:2px solid var(--ink)}.overview-card b{display:block;font:18px var(--mono);color:var(--ink);margin-bottom:11px}.overview-card span{font:500 22px/1.3 var(--serif)}
+    @media print{html,body{overflow:visible;background:#fff}#viewport{display:block;position:static}#stage{width:auto;height:auto;transform:none!important;box-shadow:none}#deck{position:static}.slide{position:relative;display:flex!important;width:1920px;height:1080px;page-break-after:always}#nav,#progress,#overview{display:none!important}}
+  </style>
+</head>
+<body>
+<div id="viewport"><main id="stage"><div id="deck">
+
+  <section class="slide dark cover" data-slide-id="outline" data-title="Outline">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Week 02 · Outline</span></div>
+    <div class="slide-inner">
+      <div><p class="eyebrow">DATA VISUALIZATION · WEEK 02</p><h1>데이터시각화 —<br><span class="hl">Python 분석 환경과 NumPy 배열 기초</span></h1><p class="lede" style="margin-top:28px">질문을 실행 가능한 파일로 연결하고, 같은 종류의 많은 숫자를 배열로 다룹니다.</p></div>
+      <div class="summary-box"><div><b>학습 순서</b><p>질문→검증→그림의 흐름 뒤에 Python 실행과 NumPy 배열 조작을 연결합니다.</p></div><div><b>핵심 결과</b><p>같은 입력으로 같은 결과를 만들고, dtype·shape·size와 원본 변경 여부를 예측합니다.</p></div></div>
+    </div><div class="slide-foot"><span>데이터시각화 · 2주차</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="analysis-flow" data-title="질문에서 그림까지의 분석 흐름">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Analysis Flow</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">02 · FLOW</p><h2>질문이 먼저이고, 검증은 전 과정을 되돌아봅니다.</h2></div>
+      <div class="process"><div class="step"><b>01</b><span>질문 정의</span></div><div class="step"><b>02</b><span>데이터 확인</span></div><div class="step"><b>03</b><span>정리</span></div><div class="step"><b>04</b><span>계산</span></div><div class="step"><b>05</b><span>시각화</span></div><div class="step"><b>06</b><span>해석</span></div></div>
+      <p class="loop">↖ 원본 행 수 · 자료형 · 결측치 · 단위 · 축 · 계산을 다시 대조 ↙</p>
+    </div><div class="slide-foot"><span>사실과 추가 근거가 필요한 주장을 구분합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="data-shapes" data-title="데이터의 형태와 질문">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Data Shape → Question</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">03 · QUESTION</p><h2>데이터 형태는 던질 수 있는 질문을 결정합니다.</h2></div>
+      <div class="four"><div class="metric"><b>범주</b><h3>비교</h3><p>종류나 집단별 값의 차이</p></div><div class="metric"><b>시간</b><h3>추세</h3><p>관측 순서에 따른 변화</p></div><div class="metric"><b>수치</b><h3>분포</h3><p>모인 위치와 퍼진 정도</p></div><div class="metric"><b>값 × 값</b><h3>관계</h3><p>두 값이 함께 변하는지</p></div></div>
+    </div><div class="slide-foot"><span>차트보다 먼저 판단 목적을 정합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="chart-choice" data-title="질문에 맞는 차트">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Chart Choice</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">04 · MATCH</p><h2>차트는 모양이 아니라 질문으로 선택합니다.</h2></div>
+      <div class="table four-col"><div class="cell head">질문</div><div class="cell head">먼저 검토할 차트</div><div class="cell head">확인할 대상</div><div class="cell">집단 비교</div><div class="cell">막대 · 점</div><div class="cell">값과 순위의 차이</div><div class="cell">시간 추세</div><div class="cell">선</div><div class="cell">방향과 변화 시점</div><div class="cell">분포</div><div class="cell">히스토그램</div><div class="cell">중심과 퍼짐</div><div class="cell">두 변수 관계</div><div class="cell">산점도</div><div class="cell">방향 · 형태 · 군집</div></div>
+    </div><div class="slide-foot"><span>먼저 검토할 후보이지 자동 정답은 아닙니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="axis-color" data-title="축과 색의 역할">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Axis & Color</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">05 · ENCODING</p><h2>축은 비율을, 색은 구분과 순서를 책임집니다.</h2></div>
+      <div class="two"><article class="panel"><h3>세로축</h3><ul class="dash"><li>막대 길이가 값이면 0에서 시작합니다.</li><li>선 그래프 축을 자르면 최솟값과 최댓값을 함께 제시합니다.</li></ul></article><article class="panel"><h3>색</h3><ul class="dash"><li>집단은 구분되는 색, 순서는 밝기 변화로 표시합니다.</li><li>하나를 강조하면 나머지는 낮은 채도의 같은 계열로 낮춥니다.</li></ul></article></div>
+    </div><div class="slide-foot"><span>시각적 차이와 데이터 차이가 어긋나지 않게 합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="interpret-check" data-title="해석 문장과 제출 전 점검">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Interpretation</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">06 · WRITE</p><h2>보이는 사실을 먼저 쓰고, 가능한 원인은 분리합니다.</h2></div>
+      <div class="two wide-left"><article class="panel"><h3>해석 문장</h3><p><b style="color:var(--ink)">두 시점 · 값 · 단위</b>를 함께 적고, 증가·감소·차이를 그림에서 직접 확인합니다.</p></article><article class="panel"><h3>제출 전 점검</h3><ul class="dash"><li>질문에 답하는가</li><li>축·범례·단위가 맞는가</li><li>같은 입력과 코드로 다시 만들 수 있는가</li></ul></article></div>
+    </div><div class="slide-foot"><span>관찰과 원인 추정을 한 문장에 섞지 않습니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="python-flow" data-title="Python 파일의 실행 흐름">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Python File</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">07 · EXECUTE</p><h2><code>.py</code> 파일은 입력부터 저장까지 위에서 아래로 실행됩니다.</h2></div>
+      <div class="file-flow"><div class="file-node">data/raw/input.csv</div><div class="arrow">→</div><div class="file-node">main.py<br>├─ output/summary.csv<br>└─ output/figures/result.png</div></div>
+      <p class="lede"><code>python main.py</code>를 새 터미널에서 실행하고 종료 코드와 생성 파일을 확인합니다.</p>
+    </div><div class="slide-foot"><span>화면 밖 상태나 이전 실행의 변수에 의존하지 않습니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="project-structure" data-title="재현 가능한 프로젝트 구조">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Project Structure</span></div>
+    <div class="slide-inner code-grid"><div><div class="title-block"><p class="section-num">08 · REPRODUCE</p><h2>원자료·코드·결과·환경을 역할별로 나눕니다.</h2></div><p class="body" style="margin-top:28px">원자료는 직접 수정하지 않고, README에는 설치·실행 명령과 생성 결과를 기록합니다.</p></div>
+      <div class="codebox"><div class="label">PROJECT TREE</div><pre>project/
+├── data/raw/
+├── data/processed/
+├── src/main.py
+├── output/figures/
+├── requirements.txt
+└── README.md</pre></div>
+    </div><div class="slide-foot"><span>python src/main.py 한 번으로 필요한 결과를 만듭니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="environment-check" data-title="Python 실행 환경 점검">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Environment Check</span></div>
+    <div class="slide-inner code-grid"><div class="codebox"><div class="label">ENVIRONMENT.PY</div><pre>from pathlib import Path
+import sys
+import numpy as np
+
+print(sys.executable)
+print(sys.version.split()[0])
+print(np.__version__)
+print(Path.cwd())</pre></div>
+      <div><div class="title-block"><p class="section-num">09 · ENV</p><h2>어떤 Python이 어디에서 실행되는지 먼저 확인합니다.</h2></div><ul class="dash" style="margin-top:28px"><li>실행 파일 경로와 버전</li><li>NumPy 패키지 버전</li><li>데이터·결과 경로의 기준 폴더</li></ul></div>
+    </div><div class="slide-foot"><span>같은 함수가 다르게 작동할 때 환경 정보가 진단 근거가 됩니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="ai-validation" data-title="AI가 만든 Python 코드 검증">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>AI Code Validation</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">10 · VERIFY</p><h2>작은 입력과 <code>assert</code>로 AI 코드를 설명 가능한 상태로 만듭니다.</h2></div>
+      <div class="code-grid"><div class="checklist" style="grid-template-columns:1fr 1fr"><div class="check"><b>설명</b><p>입력·계산·출력을 자신의 말로 설명</p></div><div class="check"><b>작은 입력</b><p>손으로 답을 아는 사례로 확인</p></div><div class="check"><b>조건 변경</b><p>요구 하나를 바꿔 반영 여부 확인</p></div><div class="check"><b>실패 기록</b><p>오류·입력·수정 내용을 남김</p></div></div>
+      <div class="codebox"><div class="label">SMALL TEST</div><pre>values = [10, 20, 30, 40]
+result = [value * 2 for value in values]
+
+assert result == [20, 40, 60, 80]</pre></div></div>
+    </div><div class="slide-foot"><span>실행되지 않거나 설명할 수 없으면 제출 기준을 통과하지 못합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="python-objects" data-title="Python 변수와 숫자 객체">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Python Objects</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">11 · OBJECT</p><h2>변수 이름은 숫자 자체가 아니라 객체를 가리킵니다.</h2></div>
+      <div class="before-after"><div class="state"><h3>동적 자료형</h3><p><code>x</code>는 실행 중 정수 객체를 가리켰다가 문자열 객체를 가리킬 수 있습니다.</p></div><div class="arrow">↔</div><div class="state"><h3>유연성의 비용</h3><p>객체마다 자료형과 관리 정보가 있어 많은 숫자에서는 저장·반복 비용이 늘어납니다.</p></div></div>
+    </div><div class="slide-foot"><span>이 비용이 NumPy 배열이 필요한 이유로 연결됩니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="python-integer" data-title="Python 정수에 들어 있는 정보">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Integer Object</span></div>
+    <div class="slide-inner image-grid"><figure class="figure"><img src="assets/python-integer.png" alt="C 정수와 Python 정수 객체 구조 비교"><figcaption>그림 4-1 · Python 정수는 값과 관리 정보를 함께 저장합니다.</figcaption></figure>
+      <div><div class="title-block"><p class="section-num">12 · INTEGER</p><h2>유연한 정수는 값보다 더 많은 정보를 품습니다.</h2></div><ul class="dash" style="margin-top:30px"><li>C 정수는 정해진 크기의 칸에 값을 직접 저장합니다.</li><li>Python 정수는 객체 관리 정보와 실제 숫자 정보를 함께 저장합니다.</li><li>대량 저장에서는 반복되는 관리 정보가 부담이 됩니다.</li></ul></div>
+    </div><div class="slide-foot"><span>큰 정수와 유연한 동작을 지원하는 대신 추가 정보가 필요합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="list-array" data-title="Python List와 NumPy 배열">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>List vs ndarray</span></div>
+    <div class="slide-inner image-grid"><figure class="figure"><img src="assets/list-vs-array.png" alt="NumPy 배열과 Python List 저장 구조 비교"><figcaption>그림 4-2 · 연속된 값과 객체 포인터의 차이</figcaption></figure>
+      <div><div class="title-block"><p class="section-num">13 · STORAGE</p><h2>List는 객체를 가리키고, ndarray는 값을 이어서 저장합니다.</h2></div><div class="two" style="gap:18px;margin-top:26px"><article class="panel" style="padding:26px"><h3>List</h3><p>서로 다른 객체를 함께 담거나 원소 수가 자주 바뀔 때</p></article><article class="panel" style="padding:26px"><h3>ndarray</h3><p>같은 자료형의 많은 숫자에 같은 계산을 적용할 때</p></article></div></div>
+    </div><div class="slide-foot"><span>dtype·shape·stride를 한 번 기록하고 같은 크기의 값을 저장합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="many-numbers" data-title="문제와 현재 해법 — 같은 종류의 많은 숫자">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Problem → Solution</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">14 · WHY NUMPY</p><h2>같은 종류의 많은 숫자에는 하나의 공통 규칙이 필요합니다.</h2></div>
+      <div class="decision"><div class="problem"><h3>중심 문제</h3><p>같은 자료형의 많은 숫자에 같은 계산을 정확하고 빠르게 적용해야 합니다.</p></div><div class="bridge">→</div><div class="solution"><h3>현재 해법</h3><p>하나의 <code>dtype</code>을 공유하는 NumPy 배열과 배열 전체 연산을 사용합니다.</p></div></div>
+      <p class="lede">저장 크기를 예측하고 Python이 원소마다 반복 지시하는 횟수를 줄입니다.</p>
+    </div><div class="slide-foot"><span>왜 List가 아니라 배열인가?</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="array-create" data-title="NumPy 배열 만들기">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Create Arrays</span></div>
+    <div class="slide-inner code-grid"><div><div class="title-block"><p class="section-num">15 · CREATE</p><h2>기존 값과 규칙 값으로 배열을 만듭니다.</h2></div><ul class="dash" style="margin-top:30px"><li><code>zeros</code>는 지정한 모양을 0으로 채웁니다.</li><li><code>arange</code>와 <code>reshape</code>는 연속된 값을 2행 3열로 배치합니다.</li><li>출력된 행과 열을 보고 요청한 <code>shape</code>인지 확인합니다.</li></ul></div>
+      <div style="display:grid;gap:18px"><div class="codebox"><div class="label">ARRAY CREATION</div><pre>import numpy as np
+
+a = np.array([1, 2, 3], dtype="int32")
+m = np.array([[1, 2, 3], [4, 5, 6]])
+
+z = np.zeros((2, 3))
+r = np.arange(6).reshape(2, 3)
+
+print("z =\n", z)
+print("r =\n", r)</pre></div><div class="codebox" style="padding:20px 34px"><div class="label">OUTPUT</div><pre>z = [[0. 0. 0.]
+     [0. 0. 0.]]
+r = [[0 1 2]
+     [3 4 5]]</pre></div></div>
+    </div><div class="slide-foot"><span>같은 자료형으로 해석할 값을 하나의 표 형태로 묶습니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="four-properties" data-title="배열을 설명하는 네 속성">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Array Properties</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">16 · INSPECT</p><h2>배열은 네 속성으로 모양과 저장 규칙을 설명합니다.</h2></div>
+      <div class="four"><div class="metric"><b>2</b><h3>ndim</h3><p>축의 개수</p></div><div class="metric"><b>(2, 3)</b><h3>shape</h3><p>각 축의 원소 수</p></div><div class="metric"><b>6</b><h3>size</h3><p>전체 원소 수</p></div><div class="metric"><b>int</b><h3>dtype</h3><p>원소 해석 규칙</p></div></div>
+      <p class="lede"><code>2 × 3 = 6</code>. shape의 곱은 size와 같아야 합니다.</p>
+    </div><div class="slide-foot"><span>int64 백만 개의 데이터 영역은 8,000,000바이트입니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="index-slice" data-title="인덱싱과 슬라이싱">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Index & Slice</span></div>
+    <div class="slide-inner code-grid"><div><div class="title-block"><p class="section-num">17 · SELECT</p><h2>인덱싱은 한 위치, 슬라이싱은 구간을 선택합니다.</h2></div><div class="two" style="gap:18px;margin-top:30px"><div class="panel"><h3>m[1, 2]</h3><p>두 번째 행, 세 번째 열의 값 <b>5</b></p></div><div class="panel"><h3>m[:, 1:]</h3><p>모든 행의 두 번째 열 이후</p></div></div></div>
+      <div class="codebox"><div class="label">SELECT</div><pre>m = np.arange(6).reshape(2, 3)
+
+assert m[1, 2] == 5
+
+m[:, 1:]
+# [[1, 2],
+#  [4, 5]]</pre></div>
+    </div><div class="slide-foot"><span>슬라이싱 표기: start : stop : step</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="reshape" data-title="배열의 모양 바꾸기">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Reshape</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">18 · RESHAPE</p><h2>값의 순서는 유지하고 축의 배치만 바꿉니다.</h2></div>
+      <div class="before-after"><div class="state"><h3>shape = (6,)</h3><div class="array"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="arrow">→</div><div class="state"><h3>shape = (2, 3)</h3><div class="matrix-array"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div>
+      <div class="two"><p class="body"><code>a[np.newaxis, :]</code> → (1, 6) 한 행</p><p class="body"><code>a[:, np.newaxis]</code> → (6, 1) 한 열</p></div>
+    </div><div class="slide-foot"><span>새 shape의 곱은 원래 size와 같아야 합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="view-copy" data-title="View와 Copy">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>View vs Copy</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">19 · MEMORY</p><h2>두 배열이 같은 데이터 버퍼를 보는지가 핵심입니다.</h2></div>
+      <div class="memory"><article class="panel"><h3>View · 공유</h3><p>새 배열 객체가 원본 데이터 버퍼를 공유합니다.</p><div class="memory-path">원본 ─ slice → View<br>View 수정 ─────→ 원본 변경</div></article><article class="panel"><h3>Copy · 독립</h3><p>새 데이터 버퍼에 값을 복제합니다.</p><div class="memory-path">원본 ─ copy → Copy<br>Copy 수정 ─────→ 원본 유지</div></article></div>
+    </div><div class="slide-foot"><span>기본 슬라이싱은 View, .copy()는 Copy를 만듭니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="partial-edit" data-title="문제와 현재 해법 — 부분 배열의 수정 범위">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Edit Scope</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">20 · DECIDE</p><h2>부분 배열의 수정이 원본에 전달될지를 먼저 결정합니다.</h2></div>
+      <div class="decision"><div class="problem"><h3>원본과 공유</h3><p>같은 데이터를 함께 갱신하고 불필요한 복사를 피해야 한다면 <b>View</b></p></div><div class="bridge">/</div><div class="solution"><h3>원본 보존</h3><p>독립적으로 수정하고 원본을 지켜야 한다면 <b>Copy</b></p></div></div>
+      <p class="lede"><code>np.shares_memory(original, part)</code>로 실제 공유 관계를 확인합니다.</p>
+    </div><div class="slide-foot"><span>항상 복사하거나 항상 공유하지 않는 이유를 설명할 수 있어야 합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="verify-view-copy" data-title="View와 Copy를 코드로 검증하기">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Memory Test</span></div>
+    <div class="slide-inner code-grid"><div class="codebox"><div class="label">VIEW_COPY_TEST.PY</div><pre>import numpy as np
+
+original = np.array([10, 20, 30, 40])
+view = original[1:3]
+copied = original[1:3].copy()
+
+view[0] = 999
+copied[0] = 999
+
+assert original.tolist() == [10, 999, 30, 40]
+assert np.shares_memory(original, view)
+assert not np.shares_memory(original, copied)</pre></div>
+      <div><div class="title-block"><p class="section-num">21 · PROVE</p><h2>같은 시작값이어도 View의 수정만 원본에 전달됩니다.</h2></div><div class="three" style="grid-template-columns:1fr;margin-top:28px"><div class="panel"><h3>원본 결과</h3><p><code>[10, 999, 30, 40]</code></p></div><div class="panel"><h3>메모리 공유</h3><p>View = True · Copy = False</p></div></div></div>
+    </div><div class="slide-foot"><span>값과 공유 여부를 함께 검증합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="first-line" data-title="배열에서 첫 선 그래프로">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>First Line Plot</span></div>
+    <div class="slide-inner code-grid"><div class="codebox"><div class="label">FIRST_LINE.PY</div><pre>from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.array([1, 2, 3, 4])
+y = np.array([10, 15, 13, 20])
+
+Path("output/figures").mkdir(parents=True, exist_ok=True)
+plt.plot(x, y, marker="o")
+plt.xlabel("time"); plt.ylabel("value")
+plt.savefig("output/figures/first_line.png", dpi=150)
+plt.close()</pre></div>
+      <div><div class="title-block"><p class="section-num">22 · PLOT</p><h2>배열의 값을 선과 점으로 저장합니다.</h2></div><div class="mini-chart"><svg viewBox="0 0 600 330" aria-label="x 1에서 4, y 10에서 20까지의 선 그래프"><polyline points="35,265 210,145 385,195 560,45" fill="none" stroke="#1b365d" stroke-width="6"/><g fill="#1b365d"><circle cx="35" cy="265" r="10"/><circle cx="210" cy="145" r="10"/><circle cx="385" cy="195" r="10"/><circle cx="560" cy="45" r="10"/></g></svg></div><p class="body">점 4개 · 마지막 좌표 <code>(4, 20)</code></p></div>
+    </div><div class="slide-foot"><span>저장한 PNG의 값과 축을 코드의 x·y 배열과 대조합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide" data-slide-id="executable-file" data-title="실행 가능한 Python 파일">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Submission Gate</span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">23 · DELIVER</p><h2>한 번의 명령으로 분석과 결과가 다시 만들어져야 합니다.</h2></div>
+      <div class="checklist"><div class="check"><b>처음부터 실행</b><p><code>python src/main.py</code></p></div><div class="check"><b>핵심 검산</b><p>원소 수와 계산 결과를 assert로 확인</p></div><div class="check"><b>결과 생성</b><p>예상 경로에 CSV와 PNG 저장</p></div><div class="check"><b>README 대조</b><p>문서의 실행 명령이 실제 명령과 일치</p></div></div>
+    </div><div class="slide-foot"><span>정의되지 않은 변수 없이 새 Python 실행에서 끝까지 완료합니다.</span><span class="counter"></span></div>
+  </section>
+
+  <section class="slide dark end" data-slide-id="summary" data-title="Summary">
+    <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Week 02 · Summary</span></div>
+    <div class="slide-inner"><p class="eyebrow">24 · THREE IDEAS TO KEEP</p><h2>질문을 실행하고,<br>배열을 검산하고,<br><span class="hl">결과를 다시 만듭니다.</span></h2>
+      <div class="takeaways"><div>질문·입력·검사·계산·그림 저장을 하나의 실행 가능한 파일로 연결합니다.</div><div>같은 자료형의 많은 숫자는 dtype을 공유하는 NumPy 배열로 계산합니다.</div><div>shape·선택·View·Copy를 통해 값의 배치와 원본 변경 여부를 예측합니다.</div></div>
+    </div><div class="slide-foot"><span>다음 단계 · NumPy 데이터 처리와 시각화</span><span class="counter"></span></div>
+  </section>
+
+</div><nav id="nav" aria-label="슬라이드 이동"></nav><div id="progress"></div>
+<aside id="overview" aria-hidden="true"><div class="overview-head"><span>SLIDE OVERVIEW · ESC TO CLOSE</span><span>24 SECTIONS</span></div><div class="overview-grid"></div></aside>
+</main></div>
+<script>
+  (function(){
+    const stage=document.getElementById("stage"),slides=[...document.querySelectorAll(".slide")],nav=document.getElementById("nav"),progress=document.getElementById("progress"),overview=document.getElementById("overview"),grid=overview.querySelector(".overview-grid"),key="dataviz-week2-kami-slide";
+    let current=parseInt(localStorage.getItem(key)||"0",10); if(!Number.isFinite(current))current=0; current=Math.max(0,Math.min(slides.length-1,current));
+    function scale(){stage.style.transform="scale("+Math.min(innerWidth/1920,innerHeight/1080)+")"}
+    function show(n){current=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,i)=>s.classList.toggle("active",i===current));[...nav.children].forEach((b,i)=>b.classList.toggle("active",i===current));[...grid.children].forEach((b,i)=>b.classList.toggle("active",i===current));progress.style.width=((current+1)/slides.length*100)+"%";localStorage.setItem(key,String(current));document.title=(current+1)+"/"+slides.length+" · "+slides[current].dataset.title+" · 데이터시각화"}
+    function toggle(force){const open=typeof force==="boolean"?force:!overview.classList.contains("open");overview.classList.toggle("open",open);overview.setAttribute("aria-hidden",String(!open))}
+    slides.forEach((s,i)=>{s.querySelector(".counter").textContent=String(i+1).padStart(2,"0")+" / "+String(slides.length).padStart(2,"0");const dot=document.createElement("button");dot.type="button";dot.setAttribute("aria-label",(i+1)+"번 슬라이드");dot.onclick=()=>show(i);nav.appendChild(dot);const card=document.createElement("button");card.type="button";card.className="overview-card";card.innerHTML="<b>"+String(i+1).padStart(2,"0")+" / "+String(slides.length).padStart(2,"0")+"</b><span>"+s.dataset.title+"</span>";card.onclick=()=>{toggle(false);show(i)};grid.appendChild(card)});
+    addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();toggle();return}if(overview.classList.contains("open"))return;if(["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)){e.preventDefault();show(current+1)}else if(["ArrowLeft","ArrowUp","PageUp"].includes(e.key)){e.preventDefault();show(current-1)}else if(e.key==="Home"){e.preventDefault();show(0)}else if(e.key==="End"){e.preventDefault();show(slides.length-1)}});
+    let wheelLock=false;addEventListener("wheel",e=>{if(wheelLock||overview.classList.contains("open")||Math.abs(e.deltaY)+Math.abs(e.deltaX)<30)return;wheelLock=true;show(current+(e.deltaY+e.deltaX>0?1:-1));setTimeout(()=>wheelLock=false,450)},{passive:true});
+    let tx=0,ty=0;addEventListener("touchstart",e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))show(current+(dx<0?1:-1))},{passive:true});
+    addEventListener("resize",scale);scale();show(current);
+  })();
+</script>
+  <script src="../../lecture-nav.js"></script>
+</body>
+</html>

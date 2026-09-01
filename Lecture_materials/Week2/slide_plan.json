@@ -1,0 +1,327 @@
+{
+  "deck_title": "데이터시각화 — Python 분석 환경과 NumPy 배열 기초",
+  "audience": "데이터시각화 수강생 · 2주차",
+  "style_preset": "Kami Academic / kami-paper",
+  "source": "../2주차_배포용.md",
+  "slide_count": 24,
+  "mapping_rule": "사용자가 유지하기로 한 Markdown의 ## 섹션 24개를 순서대로 한 장씩 대응. 별도 표지 없음.",
+  "slides": [
+    {
+      "id": "outline",
+      "type": "cover",
+      "teaching_goal": "학습 순서와 핵심 결과를 한눈에 잡는다.",
+      "core_message": "질문에서 그림까지의 흐름과 NumPy 배열 기초를 함께 익힌다.",
+      "source_refs": [
+        "lines 5–18"
+      ],
+      "layout": "editorial cover",
+      "visual": "두 학습 축과 두 결과",
+      "density": "medium",
+      "slide_number": 1
+    },
+    {
+      "id": "analysis-flow",
+      "type": "process-flow",
+      "teaching_goal": "분석의 정방향 흐름과 검증 루프를 구분한다.",
+      "core_message": "질문이 먼저이고 검증은 전 과정을 되돌아본다.",
+      "source_refs": [
+        "lines 19–37"
+      ],
+      "layout": "loop diagram",
+      "visual": "질문→데이터→정리→계산→시각화→해석",
+      "density": "medium",
+      "slide_number": 2
+    },
+    {
+      "id": "data-shapes",
+      "type": "concept-explainer",
+      "teaching_goal": "데이터 형태를 네 질문과 연결한다.",
+      "core_message": "범주·수치·시간·쌍의 형태가 비교·추세·분포·관계 질문을 만든다.",
+      "source_refs": [
+        "lines 38–51"
+      ],
+      "layout": "four-cell matrix",
+      "visual": "형태와 질문의 대응",
+      "density": "medium",
+      "slide_number": 3
+    },
+    {
+      "id": "chart-choice",
+      "type": "table-to-cards",
+      "teaching_goal": "질문별 첫 차트 후보를 선택한다.",
+      "core_message": "차트는 모양이 아니라 판단 목적에 따라 고른다.",
+      "source_refs": [
+        "lines 52–67"
+      ],
+      "layout": "question-chart matrix",
+      "visual": "비교·추세·분포·관계",
+      "density": "medium",
+      "slide_number": 4
+    },
+    {
+      "id": "axis-color",
+      "type": "two-column-compare",
+      "teaching_goal": "축과 색이 해석에 미치는 역할을 설명한다.",
+      "core_message": "축은 값의 비율을, 색은 구분·순서·강조를 정확히 전달해야 한다.",
+      "source_refs": [
+        "lines 68–80"
+      ],
+      "layout": "split rules",
+      "visual": "세로축과 색",
+      "density": "medium",
+      "slide_number": 5
+    },
+    {
+      "id": "interpret-check",
+      "type": "concept-explainer",
+      "teaching_goal": "관찰과 원인을 분리한 해석 문장을 작성한다.",
+      "core_message": "값·방향·차이를 먼저 쓰고 원인 주장은 별도로 검증한다.",
+      "source_refs": [
+        "lines 81–93"
+      ],
+      "layout": "sentence formula + checklist",
+      "visual": "관찰→해석→재현",
+      "density": "medium",
+      "slide_number": 6
+    },
+    {
+      "id": "python-flow",
+      "type": "process-flow",
+      "teaching_goal": "독립 실행 가능한 .py 파일의 흐름을 이해한다.",
+      "core_message": "입력·검사·계산·저장을 한 파일로 연결한다.",
+      "source_refs": [
+        "lines 94–111"
+      ],
+      "layout": "file pipeline",
+      "visual": "input→main.py→outputs",
+      "density": "medium",
+      "slide_number": 7
+    },
+    {
+      "id": "project-structure",
+      "type": "code-walkthrough",
+      "teaching_goal": "재현 가능한 프로젝트 폴더의 역할을 구분한다.",
+      "core_message": "원자료·처리 데이터·코드·결과·환경 정보를 분리한다.",
+      "source_refs": [
+        "lines 112–134"
+      ],
+      "layout": "file tree",
+      "visual": "프로젝트 구조와 성공 기준",
+      "density": "medium",
+      "slide_number": 8
+    },
+    {
+      "id": "environment-check",
+      "type": "code-walkthrough",
+      "teaching_goal": "실제로 실행 중인 Python 환경을 확인한다.",
+      "core_message": "실행 경로·버전·NumPy 버전·작업 폴더가 재현성의 근거다.",
+      "source_refs": [
+        "lines 135–158"
+      ],
+      "layout": "code + expected checks",
+      "visual": "환경 진단 코드",
+      "density": "medium",
+      "slide_number": 9
+    },
+    {
+      "id": "ai-validation",
+      "type": "code-walkthrough",
+      "teaching_goal": "AI 생성 코드를 작은 입력과 assert로 검증한다.",
+      "core_message": "설명할 수 없거나 재현할 수 없는 코드는 제출 기준을 통과하지 못한다.",
+      "source_refs": [
+        "lines 159–178"
+      ],
+      "layout": "test ladder",
+      "visual": "설명→작은 입력→변경→기록",
+      "density": "medium",
+      "slide_number": 10
+    },
+    {
+      "id": "python-objects",
+      "type": "concept-explainer",
+      "teaching_goal": "Python 변수와 숫자 객체의 관계를 이해한다.",
+      "core_message": "변수는 자료형 정보를 가진 객체를 가리키며 유연성에는 관리 비용이 따른다.",
+      "source_refs": [
+        "lines 179–191"
+      ],
+      "layout": "pointer concept",
+      "visual": "이름→객체→자료형",
+      "density": "medium",
+      "slide_number": 11
+    },
+    {
+      "id": "python-integer",
+      "type": "image-evidence",
+      "teaching_goal": "Python 정수의 추가 정보를 그림에서 읽는다.",
+      "core_message": "유연한 정수 객체는 값 외의 관리 정보를 함께 저장한다.",
+      "source_refs": [
+        "lines 192–206"
+      ],
+      "layout": "annotated source image",
+      "visual": "C 정수와 Python 정수 비교",
+      "density": "low",
+      "slide_number": 12
+    },
+    {
+      "id": "list-array",
+      "type": "image-evidence",
+      "teaching_goal": "List와 ndarray의 저장 방식을 비교한다.",
+      "core_message": "List는 객체를 가리키고 ndarray는 같은 자료형 값을 연속 저장한다.",
+      "source_refs": [
+        "lines 207–221"
+      ],
+      "layout": "source image + criteria",
+      "visual": "List 대 ndarray",
+      "density": "low",
+      "slide_number": 13
+    },
+    {
+      "id": "many-numbers",
+      "type": "problem-solution",
+      "teaching_goal": "많은 숫자 문제에서 ndarray가 필요한 이유를 설명한다.",
+      "core_message": "하나의 dtype과 배열 전체 연산이 저장 크기와 반복 비용을 통제한다.",
+      "source_refs": [
+        "lines 222–234"
+      ],
+      "layout": "problem→solution→effect",
+      "visual": "많은 숫자의 현재 해법",
+      "density": "medium",
+      "slide_number": 14
+    },
+    {
+      "id": "array-create",
+      "type": "code-walkthrough",
+      "teaching_goal": "기존 값과 규칙 값으로 배열을 만든다.",
+      "core_message": "np.array·zeros·arange·reshape가 배열 생성의 기본 도구다.",
+      "source_refs": [
+        "2주차_배포용.md#NumPy-배열-만들기"
+      ],
+      "layout": "explanation + code and printed output",
+      "visual": "z와 r의 생성 코드 및 실제 출력",
+      "density": "medium",
+      "slide_number": 15
+    },
+    {
+      "id": "four-properties",
+      "type": "table-to-cards",
+      "teaching_goal": "ndim·shape·size·dtype을 구분하고 검산한다.",
+      "core_message": "shape의 곱은 size이며 dtype은 원소 해석 규칙이다.",
+      "source_refs": [
+        "lines 255–274"
+      ],
+      "layout": "four metrics",
+      "visual": "배열의 네 속성",
+      "density": "medium",
+      "slide_number": 16
+    },
+    {
+      "id": "index-slice",
+      "type": "code-walkthrough",
+      "teaching_goal": "인덱싱과 슬라이싱 결과를 예측한다.",
+      "core_message": "인덱싱은 한 위치, 슬라이싱은 start:stop:step 구간을 선택한다.",
+      "source_refs": [
+        "lines 275–292"
+      ],
+      "layout": "array coordinate diagram",
+      "visual": "m[1,2]와 m[:,1:]",
+      "density": "medium",
+      "slide_number": 17
+    },
+    {
+      "id": "reshape",
+      "type": "before-after",
+      "teaching_goal": "reshape와 차원 추가의 모양 변화를 이해한다.",
+      "core_message": "값 순서를 유지하며 shape를 바꾸되 size는 보존한다.",
+      "source_refs": [
+        "2주차_배포용.md#배열의-모양-바꾸기"
+      ],
+      "layout": "before/after arrays",
+      "visual": "(6,)→(2,3)→(1,6)/(6,1)",
+      "density": "medium",
+      "slide_number": 18
+    },
+    {
+      "id": "view-copy",
+      "type": "two-column-compare",
+      "teaching_goal": "View와 Copy의 메모리 공유 차이를 설명한다.",
+      "core_message": "View는 원본 버퍼를 공유하고 Copy는 새 버퍼를 만든다.",
+      "source_refs": [
+        "lines 312–329"
+      ],
+      "layout": "memory fork diagram",
+      "visual": "공유와 독립",
+      "density": "medium",
+      "slide_number": 19
+    },
+    {
+      "id": "partial-edit",
+      "type": "problem-solution",
+      "teaching_goal": "부분 배열 수정이 원본에 미치는 범위를 통제한다.",
+      "core_message": "공유가 필요하면 View, 원본 보존이 필요하면 Copy를 쓴다.",
+      "source_refs": [
+        "lines 330–342"
+      ],
+      "layout": "decision split",
+      "visual": "수정 범위 선택 기준",
+      "density": "medium",
+      "slide_number": 20
+    },
+    {
+      "id": "verify-view-copy",
+      "type": "code-walkthrough",
+      "teaching_goal": "코드와 shares_memory로 공유 여부를 검증한다.",
+      "core_message": "같은 시작값이라도 View 수정만 원본에 전달된다.",
+      "source_refs": [
+        "lines 343–370"
+      ],
+      "layout": "code + state result",
+      "visual": "999 변경 실험",
+      "density": "high",
+      "slide_number": 21
+    },
+    {
+      "id": "first-line",
+      "type": "code-walkthrough",
+      "teaching_goal": "NumPy 배열을 첫 선 그래프로 저장한다.",
+      "core_message": "x와 y의 값·점 개수·마지막 좌표를 그림과 대조한다.",
+      "source_refs": [
+        "2주차_배포용.md#배열에서-첫-선-그래프로"
+      ],
+      "layout": "code + miniature chart",
+      "visual": "first_line.png 생성",
+      "density": "high",
+      "slide_number": 22
+    },
+    {
+      "id": "executable-file",
+      "type": "process-flow",
+      "teaching_goal": "전체 분석을 처음부터 다시 실행하고 제출물을 확인한다.",
+      "core_message": "한 번의 명령으로 검사·계산·CSV·PNG가 재생성되어야 한다.",
+      "source_refs": [
+        "2주차_배포용.md#실행-가능한-Python-파일"
+      ],
+      "layout": "submission gate",
+      "visual": "실행→assert→파일→README",
+      "density": "medium",
+      "slide_number": 23
+    },
+    {
+      "id": "summary",
+      "type": "summary",
+      "teaching_goal": "2주차의 실행·검증·배열 원칙을 회상한다.",
+      "core_message": "재현 가능한 Python 파일과 NumPy의 저장·선택·공유 규칙이 핵심이다.",
+      "source_refs": [
+        "2주차_배포용.md#Summary"
+      ],
+      "layout": "three takeaways",
+      "visual": "질문·재현·배열",
+      "density": "low",
+      "slide_number": 24
+    }
+  ],
+  "revision_notes": [
+    "2026-08-28: 사용자 요청에 따라 ## 섹션 26개를 정확히 26장으로 고정.",
+    "2026-08-28: 학생용 제목을 과목명과 강의 주제만 남긴 공식형으로 정리하고 제작 메타 문구를 제거.",
+    "2026-08-29: 15장은 배열 그림 대신 z·r 출력으로 교체하고, 18장의 (2, 3) 행 너비를 동일하게 수정하며, 기존 22·23장을 삭제해 24장으로 조정."
+  ]
+}
