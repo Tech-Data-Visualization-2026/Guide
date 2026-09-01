@@ -333,5 +333,6 @@ plt.close()</pre></div>
     addEventListener("resize",scale);scale();show(current);
   })();
 </script>
+<script>addEventListener("keydown",async event=>{if(event.key.toLowerCase()==="f"){event.preventDefault();document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}})</script>
 </body>
 </html>
