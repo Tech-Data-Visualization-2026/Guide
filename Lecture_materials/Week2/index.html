@@ -97,6 +97,7 @@
     <div class="slide-inner"><div class="title-block"><p class="section-num">02 · FLOW</p><h2>질문이 먼저이고, 검증은 전 과정을 되돌아봅니다.</h2></div>
       <div class="process"><div class="step"><b>01</b><span>질문 정의</span></div><div class="step"><b>02</b><span>데이터 확인</span></div><div class="step"><b>03</b><span>정리</span></div><div class="step"><b>04</b><span>계산</span></div><div class="step"><b>05</b><span>시각화</span></div><div class="step"><b>06</b><span>해석</span></div></div>
       <p class="loop">↖ 원본 행 수 · 자료형 · 결측치 · 단위 · 축 · 계산을 다시 대조 ↙</p>
+      <article class="panel" style="min-height:0;padding:24px 28px"><h3>쉬운 예제 · 도서관 좌석 예약</h3><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:18px"><p style="font-size:20px"><b style="color:var(--ink)">질문</b><br>4월 예약은 3월보다 늘었는가?</p><p style="font-size:20px"><b style="color:var(--ink)">데이터</b><br>3월 42회<br>4월 54회</p><p style="font-size:20px"><b style="color:var(--ink)">정리</b><br>월·횟수 단위와 결측치를 확인</p><p style="font-size:20px"><b style="color:var(--ink)">계산</b><br>54 − 42 =<br>12회</p><p style="font-size:20px"><b style="color:var(--ink)">시각화</b><br>두 달의 횟수를 막대로 비교</p><p style="font-size:20px"><b style="color:var(--ink)">해석</b><br>4월이 12회 많다.<br>원인은 별도 근거가 필요</p></div></article>
     </div><div class="slide-foot"><span>사실과 추가 근거가 필요한 주장을 구분합니다.</span><span class="counter"></span></div>
   </section>
 
@@ -124,7 +125,8 @@
   <section class="slide" data-slide-id="interpret-check" data-title="해석 문장과 제출 전 점검">
     <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Interpretation</span></div>
     <div class="slide-inner"><div class="title-block"><p class="section-num">06 · WRITE</p><h2>보이는 사실을 먼저 쓰고, 가능한 원인은 분리합니다.</h2></div>
-      <div class="two wide-left"><article class="panel"><h3>해석 문장</h3><p><b style="color:var(--ink)">두 시점 · 값 · 단위</b>를 함께 적고, 증가·감소·차이를 그림에서 직접 확인합니다.</p></article><article class="panel"><h3>제출 전 점검</h3><ul class="dash"><li>질문에 답하는가</li><li>축·범례·단위가 맞는가</li><li>같은 입력과 코드로 다시 만들 수 있는가</li></ul></article></div>
+      <div class="two wide-left"><article class="panel"><h3>해석 문장</h3><p><b style="color:var(--ink)">먼저 질문을 확인</b>하고, 그 질문에 답하는 두 시점·값·단위를 그림에서 직접 확인합니다.</p></article><article class="panel"><h3>제출 전 점검</h3><ul class="dash"><li>처음 질문에 답하는가</li><li>축·범례·단위가 맞는가</li><li>같은 입력과 코드로 다시 만들 수 있는가</li></ul></article></div>
+      <article class="panel" style="min-height:0;padding:25px 34px"><h3>쉬운 예제 · 도서관 좌석 예약</h3><div style="display:grid;grid-template-columns:.9fr 1.4fr 1.2fr;gap:28px;align-items:start"><p><b style="color:var(--ink)">질문</b><br>“4월 예약은 3월보다 늘었는가?”</p><p><b style="color:var(--ink)">그림에서 확인한 답</b><br>“예약은 3월 42회에서 4월 54회로 12회 늘었다.”</p><p><b style="color:var(--ink)">원인으로 쓰려면</b><br>“중간고사 준비 때문”은 일정·설문 등 별도 근거가 필요하다.</p></div></article>
     </div><div class="slide-foot"><span>관찰과 원인 추정을 한 문장에 섞지 않습니다.</span><span class="counter"></span></div>
   </section>
 
@@ -155,11 +157,11 @@
 import sys
 import numpy as np
 
-print(sys.executable)
-print(sys.version.split()[0])
-print(np.__version__)
-print(Path.cwd())</pre></div>
-      <div><div class="title-block"><p class="section-num">09 · ENV</p><h2>어떤 Python이 어디에서 실행되는지 먼저 확인합니다.</h2></div><ul class="dash" style="margin-top:28px"><li>실행 파일 경로와 버전</li><li>NumPy 패키지 버전</li><li>데이터·결과 경로의 기준 폴더</li></ul></div>
+print(sys.executable)         # 지금 실행한 Python 프로그램의 전체 경로
+print(sys.version.split()[0]) # 그 Python의 버전 번호만 추출
+print(np.__version__)         # 불러온 NumPy 패키지의 버전
+print(Path.cwd())             # 상대 경로의 기준이 되는 현재 폴더</pre></div>
+      <div><div class="title-block"><p class="section-num">09 · ENV</p><h2>어떤 Python이 어디에서 실행되는지 먼저 확인합니다.</h2></div><ul class="dash" style="margin-top:28px"><li><code>sys.executable</code>은 실제 실행기를 찾아, 가상환경을 잘못 썼는지 확인합니다.</li><li><code>sys.version</code>과 <code>np.__version__</code>은 Python·NumPy 버전 차이로 생기는 동작 차이를 찾습니다.</li><li><code>Path.cwd()</code>는 <code>data/</code>와 <code>output/</code> 같은 상대 경로가 어느 폴더를 기준으로 해석되는지 보여 줍니다.</li></ul></div>
     </div><div class="slide-foot"><span>같은 함수가 다르게 작동할 때 환경 정보가 진단 근거가 됩니다.</span><span class="counter"></span></div>
   </section>
 
@@ -170,7 +172,7 @@ print(Path.cwd())</pre></div>
       <div class="codebox"><div class="label">SMALL TEST</div><pre>values = [10, 20, 30, 40]
 result = [value * 2 for value in values]
 
-assert result == [20, 40, 60, 80]</pre></div></div>
+assert result == [20, 40, 60, 80]</pre><p style="font-size:21px;line-height:1.42;margin-top:18px;color:var(--warm)"><b style="color:var(--ink)">왼쪽 점검 항목과의 연결:</b> <code>values</code>는 손으로 답을 아는 <b>작은 입력</b>, <code>value * 2</code>는 말로 설명할 <b>계산</b>, <code>assert</code>는 예상 결과와 실제 결과를 대조하는 <b>검증</b>이다. 곱셈을 <code>* 3</code>으로 바꾸면 기대값도 함께 바꿔야 하며, 실패한 <code>assert</code>는 입력·오류·수정 내용을 기록할 출발점이 된다.</p></div></div>
     </div><div class="slide-foot"><span>실행되지 않거나 설명할 수 없으면 제출 기준을 통과하지 못합니다.</span><span class="counter"></span></div>
   </section>
 
@@ -197,28 +199,27 @@ assert result == [20, 40, 60, 80]</pre></div></div>
 
   <section class="slide" data-slide-id="many-numbers" data-title="문제와 현재 해법 — 같은 종류의 많은 숫자">
     <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Problem → Solution</span></div>
-    <div class="slide-inner"><div class="title-block"><p class="section-num">14 · WHY NUMPY</p><h2>같은 종류의 많은 숫자에는 하나의 공통 규칙이 필요합니다.</h2></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">14 · WHY NUMPY</p><h2>같은 단위의 많은 숫자를 한 번에 계산할 때 배열을 선택합니다.</h2></div>
+      <p class="lede"><b>학습 대상</b> · 같은 단위의 숫자 묶음에 같은 계산을 적용할 때, List와 NumPy 배열 중 배열이 필요한 상황과 결과를 예측합니다.</p>
       <div class="decision"><div class="problem"><h3>중심 문제</h3><p>같은 자료형의 많은 숫자에 같은 계산을 정확하고 빠르게 적용해야 합니다.</p></div><div class="bridge">→</div><div class="solution"><h3>현재 해법</h3><p>하나의 <code>dtype</code>을 공유하는 NumPy 배열과 배열 전체 연산을 사용합니다.</p></div></div>
-      <p class="lede">저장 크기를 예측하고 Python이 원소마다 반복 지시하는 횟수를 줄입니다.</p>
+      <article class="panel" style="min-height:0;padding:23px 32px"><h3>쉬운 예제 · 세 시간의 실내 온도 보정</h3><div style="display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:28px"><p><b style="color:var(--ink)">입력</b><br><code>[18.0, 19.5, 20.0]</code> °C<br>모두 같은 단위의 측정값</p><p><b style="color:var(--ink)">같은 계산</b><br>모든 값에 보정값 <code>+ 0.5</code>를 적용</p><p><b style="color:var(--ink)">배열의 결과</b><br><code>np.array([18.0, 19.5, 20.0]) + 0.5</code><br>→ <code>[18.5, 20.0, 20.5]</code><br>List는 원소별 반복이 필요하지만 배열은 한 식으로 계산한다.</p></div></article>
     </div><div class="slide-foot"><span>왜 List가 아니라 배열인가?</span><span class="counter"></span></div>
   </section>
 
   <section class="slide" data-slide-id="array-create" data-title="NumPy 배열 만들기">
     <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Create Arrays</span></div>
-    <div class="slide-inner code-grid"><div><div class="title-block"><p class="section-num">15 · CREATE</p><h2>기존 값과 규칙 값으로 배열을 만듭니다.</h2></div><ul class="dash" style="margin-top:30px"><li><code>zeros</code>는 지정한 모양을 0으로 채웁니다.</li><li><code>arange</code>와 <code>reshape</code>는 연속된 값을 2행 3열로 배치합니다.</li><li>출력된 행과 열을 보고 요청한 <code>shape</code>인지 확인합니다.</li></ul></div>
+    <div class="slide-inner code-grid"><div><div class="title-block"><p class="section-num">15 · CREATE</p><h2>값·빈 표·규칙값으로 배열을 만들고 모양을 확인합니다.</h2></div><p class="body" style="margin-top:24px"><b>학습 대상</b> · 기존 값, 0으로 채운 표, 연속된 값의 표를 만들고 <code>shape=(2, 3)</code>을 읽습니다.</p><ul class="dash" style="margin-top:24px"><li><code>array</code>는 이미 있는 측정값을 배열로 만듭니다.</li><li><code>zeros((2, 3))</code>는 2행 3열의 빈 표를 만듭니다.</li><li><code>arange(6).reshape(2, 3)</code>은 0~5를 2행 3열로 배치합니다.</li></ul><p class="body" style="margin-top:18px"><b>쉬운 예제</b> · 2일 × 3시간의 좌석 예약표를 먼저 모두 0으로 만들고, 시간칸 번호를 0~5로 붙입니다.</p></div>
       <div style="display:grid;gap:18px"><div class="codebox"><div class="label">ARRAY CREATION</div><pre>import numpy as np
 
-a = np.array([1, 2, 3], dtype="int32")
-m = np.array([[1, 2, 3], [4, 5, 6]])
+reserved = np.array([2, 4, 3])
+empty_table = np.zeros((2, 3), dtype=int)
+slot = np.arange(6).reshape(2, 3)
 
-z = np.zeros((2, 3))
-r = np.arange(6).reshape(2, 3)
-
-print("z =\n", z)
-print("r =\n", r)</pre></div><div class="codebox" style="padding:20px 34px"><div class="label">OUTPUT</div><pre>z = [[0. 0. 0.]
-     [0. 0. 0.]]
-r = [[0 1 2]
-     [3 4 5]]</pre></div></div>
+print(empty_table.shape)  # (2, 3)
+print(slot)</pre></div><div class="codebox" style="padding:20px 34px"><div class="label">OUTPUT</div><pre>empty_table = [[0 0 0]
+               [0 0 0]]
+slot = [[0 1 2]
+        [3 4 5]]</pre></div></div>
     </div><div class="slide-foot"><span>같은 자료형으로 해석할 값을 하나의 표 형태로 묶습니다.</span><span class="counter"></span></div>
   </section>
 
@@ -234,21 +235,24 @@ r = [[0 1 2]
     <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Index & Slice</span></div>
     <div class="slide-inner code-grid"><div><div class="title-block"><p class="section-num">17 · SELECT</p><h2>인덱싱은 한 위치, 슬라이싱은 구간을 선택합니다.</h2></div><div class="two" style="gap:18px;margin-top:30px"><div class="panel"><h3>m[1, 2]</h3><p>두 번째 행, 세 번째 열의 값 <b>5</b></p></div><div class="panel"><h3>m[:, 1:]</h3><p>모든 행의 두 번째 열 이후</p></div></div></div>
       <div class="codebox"><div class="label">SELECT</div><pre>m = np.arange(6).reshape(2, 3)
+print(m)
+# [[0 1 2]
+#  [3 4 5]]
 
-assert m[1, 2] == 5
+one = m[1, 2]
+print(one)       # 5
 
-m[:, 1:]
-# [[1, 2],
-#  [4, 5]]</pre></div>
+part = m[:, 1:]
+print(part)
+# [[1 2]
+#  [4 5]]</pre><p style="font-size:20px;line-height:1.42;margin-top:16px;color:var(--warm)"><b style="color:var(--ink)">왼쪽 설명과의 연결:</b> <code>m</code>은 2행 3열이므로 인덱스 <code>1</code>은 두 번째 행 <code>[3, 4, 5]</code>, 인덱스 <code>2</code>는 그 행의 세 번째 값 <code>5</code>를 고릅니다. <code>:</code>는 모든 행, <code>1:</code>은 두 번째 열부터 끝까지이므로 <code>part</code>에는 두 행의 <code>[1, 2]</code>, <code>[4, 5]</code>가 남습니다.</p></div>
     </div><div class="slide-foot"><span>슬라이싱 표기: start : stop : step</span><span class="counter"></span></div>
   </section>
 
   <section class="slide" data-slide-id="reshape" data-title="배열의 모양 바꾸기">
     <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>Reshape</span></div>
-    <div class="slide-inner"><div class="title-block"><p class="section-num">18 · RESHAPE</p><h2>값의 순서는 유지하고 축의 배치만 바꿉니다.</h2></div>
-      <div class="before-after"><div class="state"><h3>shape = (6,)</h3><div class="array"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="arrow">→</div><div class="state"><h3>shape = (2, 3)</h3><div class="matrix-array"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div>
-      <div class="two"><p class="body"><code>a[np.newaxis, :]</code> → (1, 6) 한 행</p><p class="body"><code>a[:, np.newaxis]</code> → (6, 1) 한 열</p></div>
-    </div><div class="slide-foot"><span>새 shape의 곱은 원래 size와 같아야 합니다.</span><span class="counter"></span></div>
+    <div class="slide-inner"><div class="title-block"><p class="section-num">18 · NEW AXIS</p><h2>새 축을 어디에 넣느냐에 따라 같은 값이 한 행 또는 한 열이 됩니다.</h2></div><p class="lede"><b>학습 대상</b> · 값 <code>[10, 20, 30]</code>은 바꾸지 않고, 행의 <code>shape=(1, 3)</code>과 열의 <code>shape=(3, 1)</code>을 구분합니다.</p><div class="three"><div class="state" style="padding:30px"><h3>원본 · 1차원</h3><div class="array"><span>10</span><span>20</span><span>30</span></div><p class="shape-label">[10 20 30]<br>shape = (3,)</p></div><div class="state" style="padding:30px"><h3>앞에 축 추가 · 한 행</h3><div class="array"><span>10</span><span>20</span><span>30</span></div><p class="shape-label">[[10 20 30]]<br>shape = (1, 3)</p></div><div class="state" style="padding:30px"><h3>뒤에 축 추가 · 한 열</h3><div class="array" style="grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:1fr;width:100px"><span>10</span><span>20</span><span>30</span></div><p class="shape-label">[[10], [20], [30]]<br>shape = (3, 1)</p></div></div><article class="panel" style="min-height:0;padding:24px 30px"><h3>핵심 확인</h3><p>세 경우 모두 값은 10, 20, 30으로 같고 원소 수도 3개다. 달라지는 것은 값을 배치하는 축의 개수와 위치뿐이다. 따라서 한 행은 <code>(1, 3)</code>, 한 열은 <code>(3, 1)</code>로 읽는다.</p></article>
+    </div><div class="slide-foot"><span>세 값은 그대로이고, 새 축이 들어간 위치만 shape를 바꿉니다.</span><span class="counter"></span></div>
   </section>
 
   <section class="slide" data-slide-id="view-copy" data-title="View와 Copy">
@@ -277,27 +281,29 @@ copied = original[1:3].copy()
 view[0] = 999
 copied[0] = 999
 
-assert original.tolist() == [10, 999, 30, 40]
-assert np.shares_memory(original, view)
-assert not np.shares_memory(original, copied)</pre></div>
-      <div><div class="title-block"><p class="section-num">21 · PROVE</p><h2>같은 시작값이어도 View의 수정만 원본에 전달됩니다.</h2></div><div class="three" style="grid-template-columns:1fr;margin-top:28px"><div class="panel"><h3>원본 결과</h3><p><code>[10, 999, 30, 40]</code></p></div><div class="panel"><h3>메모리 공유</h3><p>View = True · Copy = False</p></div></div></div>
+assert original.tolist() == [10, 999, 30, 40]  # 통과
+assert np.shares_memory(original, view)         # 통과
+assert not np.shares_memory(original, copied)   # 통과</pre></div>
+      <div><div class="title-block"><p class="section-num">21 · PROVE</p><h2>세 <code>assert</code>는 모두 통과하며, 통과하면 별도 출력이 없습니다.</h2></div><div class="three" style="grid-template-columns:1fr;margin-top:24px"><div class="panel" style="min-height:0;padding:20px 26px"><h3>1 · 원본 값 검증</h3><p><b>결과: 통과.</b> 기본 슬라이싱으로 만든 <code>view</code>가 원본과 값을 공유하므로 <code>view[0] = 999</code>가 원본의 두 번째 값도 999로 바꿉니다.</p></div><div class="panel" style="min-height:0;padding:20px 26px"><h3>2 · View 공유 검증</h3><p><b>결과: 통과.</b> <code>original[1:3]</code>는 기본 슬라이싱이어서 새 값 저장소가 아니라 원본 데이터 버퍼를 함께 봅니다.</p></div><div class="panel" style="min-height:0;padding:20px 26px"><h3>3 · Copy 독립 검증</h3><p><b>결과: 통과.</b> <code>.copy()</code>는 새 데이터 버퍼를 만들므로 <code>copied[0] = 999</code>를 해도 <code>original</code>은 더 바뀌지 않습니다.</p></div></div></div>
     </div><div class="slide-foot"><span>값과 공유 여부를 함께 검증합니다.</span><span class="counter"></span></div>
   </section>
 
   <section class="slide" data-slide-id="first-line" data-title="배열에서 첫 선 그래프로">
     <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>First Line Plot</span></div>
-    <div class="slide-inner code-grid"><div class="codebox"><div class="label">FIRST_LINE.PY</div><pre>from pathlib import Path
-import numpy as np
-import matplotlib.pyplot as plt
+    <div class="slide-inner code-grid"><div class="codebox"><div class="label">FIRST_LINE.PY</div><pre>from pathlib import Path                 # 파일·폴더 경로를 다룸
+import numpy as np                       # 숫자 배열을 만듦
+import matplotlib.pyplot as plt          # 그래프를 그림
 
-x = np.array([1, 2, 3, 4])
-y = np.array([10, 15, 13, 20])
+x = np.array([1, 2, 3, 4])               # 가로축: 시간 순서
+y = np.array([10, 15, 13, 20])           # 세로축: 각 시간의 값
 
-Path("output/figures").mkdir(parents=True, exist_ok=True)
-plt.plot(x, y, marker="o")
-plt.xlabel("time"); plt.ylabel("value")
-plt.savefig("output/figures/first_line.png", dpi=150)
-plt.close()</pre></div>
+Path("output/figures").mkdir(           # 그림을 저장할 폴더 생성
+    parents=True, exist_ok=True)
+plt.plot(x, y, marker="o")               # (x, y) 점들을 선으로 연결
+plt.xlabel("time")                       # 가로축 이름 지정
+plt.ylabel("value")                      # 세로축 이름 지정
+plt.savefig("output/figures/first_line.png", dpi=150)  # PNG 저장
+plt.close()                               # 현재 그림을 닫아 메모리 정리</pre></div>
       <div><div class="title-block"><p class="section-num">22 · PLOT</p><h2>배열의 값을 선과 점으로 저장합니다.</h2></div><div class="mini-chart"><svg viewBox="0 0 600 330" aria-label="x 1에서 4, y 10에서 20까지의 선 그래프"><polyline points="35,265 210,145 385,195 560,45" fill="none" stroke="#1b365d" stroke-width="6"/><g fill="#1b365d"><circle cx="35" cy="265" r="10"/><circle cx="210" cy="145" r="10"/><circle cx="385" cy="195" r="10"/><circle cx="560" cy="45" r="10"/></g></svg></div><p class="body">점 4개 · 마지막 좌표 <code>(4, 20)</code></p></div>
     </div><div class="slide-foot"><span>저장한 PNG의 값과 축을 코드의 x·y 배열과 대조합니다.</span><span class="counter"></span></div>
   </section>
@@ -333,6 +339,8 @@ plt.close()</pre></div>
     addEventListener("resize",scale);scale();show(current);
   })();
 </script>
-<script>addEventListener("keydown",async event=>{if(event.key.toLowerCase()==="f"){event.preventDefault();document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}})</script>
+<script>
+addEventListener("keydown",async event=>{if(event.key.toLowerCase()==="f"){event.preventDefault();document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}});
+</script>
 </body>
 </html>
