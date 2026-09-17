@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>데이터시각화 — pandas 기반 표 데이터 처리</title>
+<meta name="description" content="데이터시각화 4주차 pandas 표 데이터 처리 강의 슬라이드">
+<style>
+:root{--paper:#f5f4ed;--ivory:#faf9f5;--sand:#e3e0d5;--sand-dark:#ccc8ba;--ink:#1b365d;--ink-light:#b5c8dc;--near:#171715;--warm:#3d3d39;--stone:#696860;--tag:#e4ecf5;--serif:"Noto Serif KR","Source Han Serif K","NanumMyeongjo",Georgia,serif;--sans:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;--mono:"JetBrains Mono",D2Coding,monospace}
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden}body{background:#101a28;color:var(--near);font-family:var(--sans);-webkit-font-smoothing:antialiased}button{font:inherit}
+#viewport{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}#stage{width:1920px;height:1080px;position:relative;overflow:hidden;transform-origin:center;background:var(--paper);box-shadow:0 24px 80px #0007}#deck{position:absolute;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:78px 96px 70px;overflow:hidden;background:var(--paper)}.slide.active{display:flex}.slide.dark{background:var(--ink);color:var(--ivory)}.slide::after{content:"";position:absolute;width:440px;height:440px;right:-270px;bottom:-270px;border:1px solid var(--sand-dark);border-radius:50%;pointer-events:none}.dark::after{border-color:#faf9f522}
+.chrome{position:absolute;top:28px;left:96px;right:96px;display:flex;justify-content:space-between;align-items:center;font:18px var(--mono);letter-spacing:.08em;color:var(--stone);z-index:3}.dark .chrome{color:#faf9f59e}.brand{display:flex;align-items:center;gap:14px}.mark{display:grid;place-items:center;width:34px;height:34px;border:1px solid currentColor;border-radius:50%;font:18px var(--serif)}
+.slide-foot{position:absolute;left:96px;right:96px;bottom:22px;display:flex;justify-content:space-between;align-items:center;color:var(--stone);font:18px var(--mono);z-index:3}.dark .slide-foot{color:#faf9f59e}.counter{min-width:106px;text-align:center;padding:7px 12px;border:1px solid var(--sand-dark);border-radius:4px;background:var(--ivory);color:var(--near);font-variant-numeric:tabular-nums}.dark .counter{color:var(--ivory);background:transparent;border-color:#faf9f547}
+.slide-inner{width:100%;height:100%;min-height:0;display:grid;align-content:center;gap:26px;position:relative;z-index:2}h1,h2,h3,p{margin:0}h1,h2,h3{font-family:var(--serif);font-weight:500}h1{font-size:76px;line-height:1.12;letter-spacing:-.035em}h2{font-size:48px;line-height:1.18;letter-spacing:-.025em}h3{font-size:29px;line-height:1.28;color:var(--ink)}
+.section-num,.eyebrow{font:20px/1.2 var(--mono);letter-spacing:.11em;color:var(--ink)}.dark .section-num,.dark .eyebrow{color:#faf9f5ad}.lede{font:29px/1.48 var(--serif);color:#faf9f5c5;margin-top:28px}.hl{color:var(--ink-light)}code{padding:2px 7px;background:var(--tag);color:var(--ink);border-radius:3px;font:.88em var(--mono)}
+.cover-grid{grid-template-columns:1.18fr .82fr;gap:68px;align-items:center}.cover h1{color:var(--ivory)}.cover-cards{display:grid;gap:24px}.cover .panel{background:transparent;border-color:#faf9f558}.cover .panel h3{color:var(--ivory)}.cover .dash li{color:#faf9f5c5}.cover .dash li::before{color:var(--ink-light)}
+.title-block{display:grid;gap:12px}.content-grid{display:grid;grid-template-columns:.93fr 1.07fr;gap:42px;align-items:center;min-height:0}.text-stack{display:grid;gap:20px;align-content:center;min-height:0}.text-stack.wide{max-width:1500px;margin:auto}.panel-stack{display:grid;gap:16px}.panel{background:var(--ivory);border-top:2px solid var(--ink);padding:19px 23px;min-height:0}.panel h3{margin-bottom:10px}.panel p{font-size:25px;line-height:1.4;color:var(--warm);margin-bottom:10px}
+ul.dash{list-style:none;padding:0;margin:0;display:grid;gap:9px}ul.dash li{position:relative;padding-left:22px;font-size:25px;line-height:1.4;color:var(--warm)}ul.dash li::before{content:"–";position:absolute;left:0;color:var(--ink)}
+.code-stack{display:grid;gap:14px;min-height:0}.codebox{background:var(--ivory);border:1px solid var(--sand-dark);padding:18px 22px;min-height:0}.codebox.text{background:#eef2f5}.code-label{font:18px var(--mono);color:var(--ink);margin-bottom:10px;letter-spacing:.05em}pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:22px/1.3 var(--mono);color:var(--near);font-variant-numeric:tabular-nums}
+.dense .content-grid{gap:30px}.dense h2{font-size:42px}.dense .text-stack{gap:12px}.dense .panel-stack{gap:10px}.dense .panel{padding:13px 17px}.dense .panel h3{font-size:26px;margin-bottom:6px}.dense ul.dash{gap:5px}.dense ul.dash li,.dense .panel p{font-size:22px;line-height:1.3}.dense .code-stack{gap:8px}.dense .codebox{padding:11px 15px}.dense .code-label{margin-bottom:6px}.dense pre{font-size:22px;line-height:1.16}
+.end .slide-inner{align-content:end;padding-bottom:72px}.end h2{font-size:70px;color:var(--ivory);max-width:24ch}.takeaways{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #faf9f540;margin-top:22px}.takeaways div{padding:22px 25px;border-right:1px solid #faf9f52e;font-size:22px;line-height:1.38;color:#faf9f5bd}.takeaways div:nth-child(3n){border-right:0}
+#nav{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:8}#nav button{width:8px;height:8px;padding:0;border:0;border-radius:99px;background:#dbe1e7;cursor:pointer}#nav button.active{width:22px;background:var(--ink)}#progress{position:absolute;bottom:0;left:0;height:3px;background:var(--ink);z-index:9;transition:width .25s}
+#overview{position:absolute;inset:0;display:none;z-index:20;background:#f5f4edfa;padding:50px 60px;overflow:auto}#overview.open{display:block}.overview-head{display:flex;justify-content:space-between;margin-bottom:26px;font:18px var(--mono);color:var(--stone)}.overview-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}.overview-card{min-height:122px;text-align:left;padding:16px;border:1px solid var(--sand-dark);background:var(--ivory);color:var(--near);cursor:pointer}.overview-card.active{border:2px solid var(--ink)}.overview-card b{display:block;font:18px var(--mono);color:var(--ink);margin-bottom:9px}.overview-card span{font:500 20px/1.28 var(--serif)}
+@media print{html,body{overflow:visible;background:#fff}#viewport{display:block;position:static}#stage{width:auto;height:auto;transform:none!important;box-shadow:none}#deck{position:static}.slide{position:relative;display:flex!important;width:1920px;height:1080px;page-break-after:always}#nav,#progress,#overview{display:none!important}}
+</style></head><body><div id="viewport"><main id="stage"><div id="deck">
+<section class="slide dark cover" data-slide-id="outline" data-title="Outline">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 01</span></div><div class="slide-foot"><span>Outline</span><span class="counter"></span></div><div class="slide-inner cover-grid"><div><p class="eyebrow">DATA VISUALIZATION · WEEK 04</p><h1>데이터시각화 —<br><span class="hl">pandas 기반 표 데이터 처리</span></h1><p class="lede">행과 열의 문맥을 지키며 선택·정렬·결측·재배열을 익힙니다.</p></div><div class="cover-cards"><article class="panel"><h3>이번 주 질문</h3><ul class="dash"><li>표의 값뿐 아니라 행·열의 의미까지 보존하면서 시각화 입력을 어떻게 만드는가?</li><li>결측값과 같은 구조의 표 조각을 어떤 기준으로 처리하고 이어 붙이는가?</li></ul></article><article class="panel"><h3>학습 순서</h3><ul class="dash"><li><code>Series</code>·<code>DataFrame</code>·<code>Index</code> → 선택과 연산 정렬 → 결측 처리 순서로 익힌다.</li><li><code>MultiIndex</code> → <code>stack</code>·<code>unstack</code> → <code>concat</code> 순서로 표의 모양과 조각을 다룬다.</li></ul></article></div></div></section>
+<section class="slide" data-slide-id="table-to-visualization" data-title="표를 그림으로 바꾸기 전에 할 일">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 02</span></div><div class="slide-foot"><span>표를 그림으로 바꾸기 전에 할 일</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">02 · PANDAS</p><h2>표를 그림으로 바꾸기 전에 할 일</h2></div><div class="panel-stack"><article class="panel"><h3>한 행의 의미부터 정한다</h3><ul class="dash"><li>같은 표라도 한 행이 주문인지 고객인지에 따라 가능한 집계와 시각화가 달라진다.</li><li>이 수업의 기본 예제에서 한 행은 주문 한 건이고 <code>order_id</code>가 그 주문을 식별한다.</li></ul></article><article class="panel"><h3>먼저 확인할 다섯 가지</h3><ul class="dash"><li>행 수, 열 이름, 자료형, 결측 개수, 인덱스 중복을 먼저 확인한다.</li><li>처리 전후 행 수가 달라졌다면 어떤 규칙 때문에 달라졌는지 설명할 수 있어야 한다.</li></ul></article></div></div><div class="code-stack"><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>원시 표 → 행·열 선택 → 자료형 확인 → 결측 처리 → 표 조각 연결
+       → 집계 가능한 표 → x·y·색에 열 연결 → 시각화</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="series" data-title="Series는 값에 행 이름을 붙인다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 03</span></div><div class="slide-foot"><span>Series는 값에 행 이름을 붙인다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">03 · PANDAS</p><h2>Series는 값에 행 이름을 붙인다</h2></div><div class="panel-stack"><article class="panel"><h3>코드와 실행 이유</h3><ul class="dash"><li><code>import pandas as pd</code>는 pandas를 관례적인 짧은 이름 <code>pd</code>로 불러온다.</li><li><code>pd.Series</code>는 1차원 값에 <code>index</code>라는 행 이름과 <code>name</code>이라는 값의 의미를 붙인다.</li><li>주문 번호를 인덱스로 넣었기 때문에 <code>sales.loc[102]</code>처럼 위치가 아니라 주문 이름으로 값을 찾을 수 있다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>import pandas as pd
+
+sales = pd.Series(
+    [12000, 18000, 15000],
+    index=[101, 102, 104],
+    name=&quot;sales&quot;,
+)
+print(sales)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>101    12000
+102    18000
+104    15000
+Name: sales, dtype: int64</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="dataframe" data-title="DataFrame은 이름 붙은 열을 함께 관리한다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 04</span></div><div class="slide-foot"><span>DataFrame은 이름 붙은 열을 함께 관리한다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">04 · PANDAS</p><h2>DataFrame은 이름 붙은 열을 함께 관리한다</h2></div><div class="panel-stack"><article class="panel"><h3>코드와 함수별 의미</h3><ul class="dash"><li><code>pd.DataFrame({...})</code>는 같은 길이의 열들을 2차원 표로 묶고 딕셔너리 키를 열 이름으로 사용한다.</li><li><code>np.nan</code>은 실수 열의 결측값이고 <code>pd.array(..., dtype=&quot;Int64&quot;)</code>는 정수와 <code>&lt;NA&gt;</code>를 함께 보존한다.</li><li><code>pd.Index(..., name=&quot;order_id&quot;)</code>는 행 이름이 주문 식별자라는 뜻을 기록한다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>import numpy as np
+
+orders = pd.DataFrame({
+    &quot;customer_id&quot;: [1, 2, 1, 4],
+    &quot;region&quot;: [&quot;Seoul&quot;, &quot;Busan&quot;, &quot;Seoul&quot;, &quot;Jeju&quot;],
+    &quot;sales&quot;: [12000.0, 18000.0, np.nan, 15000.0],
+    &quot;quantity&quot;: pd.array([1, 2, None, 1], dtype=&quot;Int64&quot;),
+}, index=pd.Index([101, 102, 103, 104], name=&quot;order_id&quot;))
+print(orders)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>          customer_id region    sales  quantity
+order_id
+101                 1  Seoul  12000.0         1
+102                 2  Busan  18000.0         2
+103                 1  Seoul      NaN      &lt;NA&gt;
+104                 4   Jeju  15000.0         1</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="index" data-title="Index는 행과 열의 문맥을 보존한다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 05</span></div><div class="slide-foot"><span>Index는 행과 열의 문맥을 보존한다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">05 · PANDAS</p><h2>Index는 행과 열의 문맥을 보존한다</h2></div><div class="panel-stack"><article class="panel"><h3>두 축의 이름 확인</h3><ul class="dash"><li><code>orders.index</code>는 행 축의 주문 번호를, <code>orders.columns</code>는 열 축의 변수 이름을 반환한다.</li><li><code>tolist()</code>는 Index 객체를 익숙한 파이썬 리스트로 바꾸어 실제 이름을 확인하게 한다.</li></ul></article><article class="panel"><h3>실행 결과와 해석</h3><ul class="dash"><li>값이 같아도 인덱스가 다르면 다른 관측이므로 pandas는 연산할 때 이름을 먼저 맞춘다.</li><li>인덱스는 자동으로 붙는 장식이 아니라 선택·정렬·연산 정렬의 기준이다.</li></ul></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>print(orders.index.tolist())
+print(orders.columns.tolist())</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>[101, 102, 103, 104]
+[&#x27;customer_id&#x27;, &#x27;region&#x27;, &#x27;sales&#x27;, &#x27;quantity&#x27;]</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="bracket-selection" data-title="대괄호는 열 이름을 선택한다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 06</span></div><div class="slide-foot"><span>대괄호는 열 이름을 선택한다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">06 · PANDAS</p><h2>대괄호는 열 이름을 선택한다</h2></div><div class="panel-stack"><article class="panel"><h3>한 열과 여러 열의 차이</h3><ul class="dash"><li><code>orders[&quot;sales&quot;]</code>는 열 이름 하나를 문자열로 받아 <code>Series</code>를 반환한다.</li><li><code>orders[[&quot;region&quot;, &quot;sales&quot;]]</code>는 열 이름 리스트를 받아 두 열짜리 <code>DataFrame</code>을 반환한다.</li><li>뒤의 분석에서 2차원 표를 유지해야 한다면 대괄호를 두 번 써서 열 리스트를 전달한다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>one = orders[&quot;sales&quot;]
+two = orders[[&quot;region&quot;, &quot;sales&quot;]]
+
+print(type(one).__name__)
+print(type(two).__name__)
+print(two)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>Series
+DataFrame
+         region    sales
+order_id
+101       Seoul  12000.0
+102       Busan  18000.0
+103       Seoul      NaN
+104        Jeju  15000.0</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="loc" data-title="loc는 이름으로 행과 열을 고른다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 07</span></div><div class="slide-foot"><span>loc는 이름으로 행과 열을 고른다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">07 · PANDAS</p><h2>loc는 이름으로 행과 열을 고른다</h2></div><div class="panel-stack"><article class="panel"><h3>코드와 선택 기준</h3><ul class="dash"><li><code>.loc[행, 열]</code>은 위치가 아니라 인덱스와 열의 이름을 사용한다.</li><li><code>[101, 103]</code>은 두 주문 번호를, <code>[&quot;region&quot;, &quot;sales&quot;]</code>는 두 열 이름을 지정한다.</li><li>행과 열을 동시에 고르면 선택 의도가 코드에 명확하게 남는다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>picked = orders.loc[[101, 103], [&quot;region&quot;, &quot;sales&quot;]]
+print(picked)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>         region    sales
+order_id
+101       Seoul  12000.0
+103       Seoul      NaN</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="iloc" data-title="iloc는 정수 위치로 행과 열을 고른다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 08</span></div><div class="slide-foot"><span>iloc는 정수 위치로 행과 열을 고른다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">08 · PANDAS</p><h2>iloc는 정수 위치로 행과 열을 고른다</h2></div><div class="panel-stack"><article class="panel"><h3>코드와 선택 기준</h3><ul class="dash"><li><code>.iloc[행, 열]</code>은 화면에 보이는 순서를 0부터 세어 선택한다.</li><li><code>:2</code>는 0·1번 위치의 앞 두 행을 고르며 끝 위치 2는 포함하지 않는다.</li><li><code>[0, 2]</code>는 첫 번째와 세 번째 열인 <code>customer_id</code>와 <code>sales</code>를 고른다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>picked = orders.iloc[:2, [0, 2]]
+print(picked)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>          customer_id    sales
+order_id
+101                 1  12000.0
+102                 2  18000.0</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="loc-vs-iloc" data-title="loc와 iloc를 섞으면 다른 행을 고를 수 있다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 09</span></div><div class="slide-foot"><span>loc와 iloc를 섞으면 다른 행을 고를 수 있다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">09 · PANDAS</p><h2>loc와 iloc를 섞으면 다른 행을 고를 수 있다</h2></div><div class="panel-stack"><article class="panel"><h3>반례로 구분하기</h3><ul class="dash"><li><code>loc[101, ...]</code>의 <code>101</code>은 이름이 101인 첫 주문을 뜻한다.</li><li><code>iloc[1, ...]</code>의 <code>1</code>은 두 번째 위치이므로 주문 번호 102를 뜻한다.</li><li>정수형 인덱스에서 두 선택법을 혼동하면 코드가 실행되어도 다른 관측을 선택할 수 있다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>print(orders.loc[101, &quot;sales&quot;])
+print(orders.iloc[1, 2])</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>12000.0
+18000.0</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="boolean-mask" data-title="불리언 마스크는 조건을 행 선택으로 바꾼다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 10</span></div><div class="slide-foot"><span>불리언 마스크는 조건을 행 선택으로 바꾼다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">10 · PANDAS</p><h2>불리언 마스크는 조건을 행 선택으로 바꾼다</h2></div><div class="panel-stack"><article class="panel"><h3>조건 만들기와 적용하기</h3><ul class="dash"><li><code>.ge(15000)</code>는 각 매출이 15000 이상인지 비교해 <code>True</code>·<code>False</code> Series를 만든다.</li><li>결측값과의 비교 결과는 <code>False</code>이므로 주문 103은 선택되지 않는다.</li><li><code>.loc[mask, ...]</code>는 마스크가 <code>True</code>인 행만 남긴다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>mask = orders[&quot;sales&quot;].ge(15000)
+selected = orders.loc[mask, [&quot;region&quot;, &quot;sales&quot;]]
+
+print(mask)
+print(selected)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>order_id
+101    False
+102     True
+103    False
+104     True
+
+         region    sales
+order_id
+102       Busan  18000.0
+104        Jeju  15000.0</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="derived-column" data-title="파생 열은 계산 근거를 표에 남긴다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 11</span></div><div class="slide-foot"><span>파생 열은 계산 근거를 표에 남긴다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">11 · PANDAS</p><h2>파생 열은 계산 근거를 표에 남긴다</h2></div><div class="panel-stack"><article class="panel"><h3>단가 열 만들기</h3><ul class="dash"><li><code>.assign(새열=계산식)</code>은 원본을 바꾸지 않고 새 열이 포함된 DataFrame을 반환한다.</li><li><code>/</code>는 같은 행 이름의 <code>sales</code>와 <code>quantity</code>를 나누므로 주문별 단가가 계산된다.</li><li>어느 입력이든 결측이면 단가도 결측이 되어 계산 불가능하다는 사실을 숨기지 않는다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>prepared = orders.assign(
+    unit_price=orders[&quot;sales&quot;] / orders[&quot;quantity&quot;]
+)
+print(prepared[[&quot;sales&quot;, &quot;quantity&quot;, &quot;unit_price&quot;]])</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>            sales  quantity  unit_price
+order_id
+101       12000.0         1     12000.0
+102       18000.0         2      9000.0
+103           NaN      &lt;NA&gt;        &lt;NA&gt;
+104       15000.0         1     15000.0</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="series-alignment" data-title="Series 연산은 같은 인덱스를 먼저 맞춘다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 12</span></div><div class="slide-foot"><span>Series 연산은 같은 인덱스를 먼저 맞춘다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">12 · PANDAS</p><h2>Series 연산은 같은 인덱스를 먼저 맞춘다</h2></div><div class="panel-stack"><article class="panel"><h3>위치가 아니라 이름으로 덧셈</h3><ul class="dash"><li>두 Series의 첫 번째 값끼리 더하는 것이 아니라 같은 인덱스 이름끼리 더한다.</li><li><code>B</code>는 양쪽에 있으므로 <code>20 + 1 = 21</code>이 된다.</li><li><code>A</code>와 <code>C</code>는 한쪽 값이 없으므로 결과가 <code>NaN</code>이 된다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>a = pd.Series([10, 20], index=[&quot;A&quot;, &quot;B&quot;])
+b = pd.Series([1, 2], index=[&quot;B&quot;, &quot;C&quot;])
+print(a + b)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>A     NaN
+B    21.0
+C     NaN
+dtype: float64</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="fill-value" data-title="fill_value는 없는 값을 어떻게 계산할지 정한다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 13</span></div><div class="slide-foot"><span>fill_value는 없는 값을 어떻게 계산할지 정한다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">13 · PANDAS</p><h2>fill_value는 없는 값을 어떻게 계산할지 정한다</h2></div><div class="panel-stack"><article class="panel"><h3>결측을 0으로 간주한 덧셈</h3><ul class="dash"><li><code>.add</code>는 <code>+</code>와 같은 덧셈 메서드이지만 <code>fill_value</code> 규칙을 함께 지정할 수 있다.</li><li><code>fill_value=0</code>은 한쪽 인덱스가 없을 때만 그 빈자리를 0으로 보고 계산한다.</li><li>실제로 모르는 값을 무조건 0으로 바꿔도 된다는 뜻은 아니므로 문제의 의미가 허용할 때만 쓴다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>filled_sum = a.add(b, fill_value=0)
+print(filled_sum)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>A    10.0
+B    21.0
+C     2.0
+dtype: float64</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="dataframe-series-alignment" data-title="DataFrame과 Series도 열 이름을 맞춘다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 14</span></div><div class="slide-foot"><span>DataFrame과 Series도 열 이름을 맞춘다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">14 · PANDAS</p><h2>DataFrame과 Series도 열 이름을 맞춘다</h2></div><div class="panel-stack"><article class="panel"><h3>열별 값 더하기</h3><ul class="dash"><li>DataFrame에 Series를 더하면 Series의 인덱스가 DataFrame의 열 이름에 맞춰진다.</li><li>모든 행의 <code>sales</code>에는 1000이, <code>quantity</code>에는 1이 더해진다.</li><li>결측값에 숫자를 더해도 결측이므로 주문 103의 빈 정보는 그대로 남는다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>bonus = pd.Series({&quot;sales&quot;: 1000, &quot;quantity&quot;: 1})
+adjusted = orders[[&quot;sales&quot;, &quot;quantity&quot;]] + bonus
+print(adjusted)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>            sales  quantity
+order_id
+101       13000.0         2
+102       19000.0         3
+103           NaN      &lt;NA&gt;
+104       16000.0         2</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="missing-values" data-title="결측값은 0이 아니라 알려지지 않은 값이다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 15</span></div><div class="slide-foot"><span>결측값은 0이 아니라 알려지지 않은 값이다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">15 · PANDAS</p><h2>결측값은 0이 아니라 알려지지 않은 값이다</h2></div><div class="panel-stack"><article class="panel"><h3>열별 결측 개수 세기</h3><ul class="dash"><li><code>.isna()</code>는 각 셀이 결측인지 나타내는 불리언 표를 만든다.</li><li><code>.sum()</code>은 <code>True</code>를 1로 계산해 열마다 결측 셀의 개수를 센다.</li><li>매출 0원과 매출 미기록은 분석 의미가 다르므로 결측을 자동으로 0으로 바꾸면 안 된다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>missing = orders[[&quot;sales&quot;, &quot;quantity&quot;]].isna().sum()
+print(missing)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>sales       1
+quantity    1
+dtype: int64</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="dropna" data-title="dropna는 필요한 값이 없는 행을 제거한다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 16</span></div><div class="slide-foot"><span>dropna는 필요한 값이 없는 행을 제거한다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">16 · PANDAS</p><h2>dropna는 필요한 값이 없는 행을 제거한다</h2></div><div class="panel-stack"><article class="panel"><h3>기준 열을 명시하기</h3><ul class="dash"><li><code>.dropna</code>는 결측이 있는 행이나 열을 제거한 새 DataFrame을 반환한다.</li><li><code>subset=[&quot;sales&quot;]</code>는 다른 열이 아니라 매출이 비어 있는 행만 제거 기준으로 삼는다.</li><li>제거 전 4행에서 제거 후 3행이 되었으므로 그래프의 관측 수도 하나 줄어든다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>complete_sales = orders.dropna(subset=[&quot;sales&quot;])
+print(complete_sales)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>          customer_id region    sales  quantity
+order_id
+101                 1  Seoul  12000.0         1
+102                 2  Busan  18000.0         2
+104                 4   Jeju  15000.0         1</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="fillna" data-title="fillna는 명시한 가정으로 빈 값을 채운다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 17</span></div><div class="slide-foot"><span>fillna는 명시한 가정으로 빈 값을 채운다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">17 · PANDAS</p><h2>fillna는 명시한 가정으로 빈 값을 채운다</h2></div><div class="panel-stack"><article class="panel"><h3>중앙값으로 매출 채우기</h3><ul class="dash"><li><code>.copy()</code>는 원본 <code>orders</code>를 보존한 채 별도 표에서 처리하기 위해 사용한다.</li><li><code>.median()</code>은 결측을 제외한 매출의 중앙값 15000을 계산한다.</li><li><code>.fillna(median_sales)</code>는 결측값만 중앙값으로 바꾸므로 이 가정을 분석 기록에 남겨야 한다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>filled = orders.copy()
+median_sales = filled[&quot;sales&quot;].median()
+filled[&quot;sales&quot;] = filled[&quot;sales&quot;].fillna(median_sales)
+print(filled[[&quot;sales&quot;]])</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>            sales
+order_id
+101       12000.0
+102       18000.0
+103       15000.0
+104       15000.0</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="nullable-dtype" data-title="nullable dtype은 정수와 결측을 함께 보존한다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 18</span></div><div class="slide-foot"><span>nullable dtype은 정수와 결측을 함께 보존한다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">18 · PANDAS</p><h2>nullable dtype은 정수와 결측을 함께 보존한다</h2></div><div class="panel-stack"><article class="panel"><h3>대문자 Int64의 역할</h3><ul class="dash"><li>일반 NumPy 정수형은 결측을 직접 표현하지 못하지만 pandas의 <code>Int64</code>는 <code>&lt;NA&gt;</code>를 허용한다.</li><li><code>Int64</code>의 대문자 <code>I</code>는 결측을 지원하는 pandas 확장 자료형이라는 표시다.</li><li>수량이 정수라는 의미를 지키면서 미기록 값도 따로 표현할 수 있다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>quantity = pd.array([1, 2, None, 1], dtype=&quot;Int64&quot;)
+print(quantity)
+print(quantity.dtype)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>[1, 2, &lt;NA&gt;, 1]
+Length: 4, dtype: Int64
+Int64</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="multiindex" data-title="MultiIndex는 여러 차원을 행 이름에 담는다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 19</span></div><div class="slide-foot"><span>MultiIndex는 여러 차원을 행 이름에 담는다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">19 · PANDAS</p><h2>MultiIndex는 여러 차원을 행 이름에 담는다</h2></div><div class="panel-stack"><article class="panel"><h3>지역과 연도를 함께 인덱스로</h3><ul class="dash"><li><code>.set_index([&quot;region&quot;, &quot;year&quot;])</code>는 두 열을 순서가 있는 계층적 행 인덱스로 바꾼다.</li><li><code>.sort_index()</code>는 계층 인덱스를 정렬해 선택과 출력의 순서를 예측하기 쉽게 만든다.</li><li>한 행은 이제 특정 지역의 특정 연도 매출을 뜻한다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>regional = pd.DataFrame({
+    &quot;region&quot;: [&quot;Seoul&quot;, &quot;Seoul&quot;, &quot;Busan&quot;, &quot;Busan&quot;],
+    &quot;year&quot;: [2025, 2026, 2025, 2026],
+    &quot;sales&quot;: [30, 40, 20, 25],
+})
+indexed = regional.set_index([&quot;region&quot;, &quot;year&quot;]).sort_index()
+print(indexed)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>             sales
+region year
+Busan  2025     20
+       2026     25
+Seoul  2025     30
+       2026     40</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="multiindex-selection" data-title="MultiIndex에서도 이름으로 한 값을 선택한다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 20</span></div><div class="slide-foot"><span>MultiIndex에서도 이름으로 한 값을 선택한다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">20 · PANDAS</p><h2>MultiIndex에서도 이름으로 한 값을 선택한다</h2></div><div class="panel-stack"><article class="panel"><h3>튜플로 두 단계 지정</h3><ul class="dash"><li><code>(&quot;Seoul&quot;, 2026)</code> 튜플은 첫 단계 <code>region</code>과 둘째 단계 <code>year</code>의 이름을 함께 지정한다.</li><li>뒤의 <code>&quot;sales&quot;</code>는 선택할 열 이름이므로 결과는 하나의 값이다.</li><li>이 코드는 서울의 2026년 매출이라는 두 차원의 문맥을 그대로 드러낸다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>value = indexed.loc[(&quot;Seoul&quot;, 2026), &quot;sales&quot;]
+print(value)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>40</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="stack-unstack" data-title="unstack과 stack은 값이 아니라 표 모양을 바꾼다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 21</span></div><div class="slide-foot"><span>unstack과 stack은 값이 아니라 표 모양을 바꾼다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">21 · PANDAS</p><h2>unstack과 stack은 값이 아니라 표 모양을 바꾼다</h2></div><div class="panel-stack"><article class="panel"><h3>긴 표와 넓은 표 사이 이동</h3><ul class="dash"><li><code>.unstack(&quot;year&quot;)</code>는 행 인덱스의 연도를 열로 올려 지역별 가로 비교가 가능한 넓은 표를 만든다.</li><li><code>.stack()</code>은 열의 연도를 다시 행 인덱스로 내려 원래의 긴 구조로 되돌린다.</li><li>두 연산은 관측값을 새로 계산하지 않고 같은 값을 다른 축에 배치한다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>wide = indexed[&quot;sales&quot;].unstack(&quot;year&quot;)
+long_again = wide.stack()
+
+print(wide)
+print(long_again)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>year    2025  2026
+region
+Busan     20    25
+Seoul     30    40
+
+region  year
+Busan   2025    20
+        2026    25
+Seoul   2025    30
+        2026    40
+dtype: int64</pre></div></div></div></div></section>
+<section class="slide" data-slide-id="concat" data-title="concat은 같은 구조의 표 조각을 이어 붙인다">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 22</span></div><div class="slide-foot"><span>concat은 같은 구조의 표 조각을 이어 붙인다</span><span class="counter"></span></div><div class="slide-inner"><div class="content-grid"><div class="text-stack"><div class="title-block"><p class="section-num">22 · PANDAS</p><h2>concat은 같은 구조의 표 조각을 이어 붙인다</h2></div><div class="panel-stack"><article class="panel"><h3>월별 주문을 행 방향으로 결합</h3><ul class="dash"><li><code>pd.concat([jan, feb])</code>는 열 구조가 같은 1월·2월 표를 기본 행 방향으로 이어 붙인다.</li><li><code>ignore_index=True</code>는 각 조각의 기존 행 번호를 버리고 0부터 새 번호를 붙인다.</li><li>원본 주문 식별자인 <code>order_id</code> 열은 그대로 보존된다.</li></ul></article><article class="panel"><h3>실행 결과</h3></article></div></div><div class="code-stack"><div class="codebox python"><div class="code-label">PYTHON · 실행 코드</div><pre>jan = pd.DataFrame({&quot;order_id&quot;: [101, 102], &quot;sales&quot;: [12, 18]})
+feb = pd.DataFrame({&quot;order_id&quot;: [103], &quot;sales&quot;: [15]})
+
+all_orders = pd.concat([jan, feb], ignore_index=True)
+print(all_orders)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>   order_id  sales
+0       101     12
+1       102     18
+2       103     15</pre></div></div></div></div></section>
+<section class="slide dark end" data-slide-id="summary" data-title="Summary">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>WEEK 04 · 23</span></div><div class="slide-foot"><span>Summary</span><span class="counter"></span></div><div class="slide-inner"><p class="eyebrow">23 · PANDAS CHECKPOINT</p><h2>이름을 맞추고,<br>결측을 설명하고,<br><span class="hl">표 모양을 바꿉니다.</span></h2><div class="takeaways"><div><code>Series</code>와 <code>DataFrame</code>은 값에 <code>Index</code>와 열 이름을 붙여 행과 열의 의미를 보존한다.</div><div>대괄호는 열, <code>loc</code>은 이름, <code>iloc</code>은 정수 위치, 불리언 마스크는 조건으로 행과 열을 선택한다.</div><div>pandas 연산은 같은 인덱스와 열 이름을 먼저 맞추며 <code>fill_value</code>는 한쪽에 없는 값의 계산 규칙을 정한다.</div><div><code>dropna</code>는 필요한 값이 없는 행을 제거하고 <code>fillna</code>는 명시한 가정으로 빈 값을 채운다.</div><div><code>MultiIndex</code>와 <code>stack</code>·<code>unstack</code>은 같은 값을 다른 표 모양으로 재배치한다.</div><div><code>concat</code>은 같은 열 구조의 표 조각을 행 방향으로 이어 붙이며 원본 <code>order_id</code>는 그대로 남긴다.</div></div></div></section></div><nav id="nav" aria-label="슬라이드 이동"></nav><div id="progress"></div><aside id="overview" aria-hidden="true"><div class="overview-head"><span>SLIDE OVERVIEW · ESC TO CLOSE</span><span>23 SECTIONS</span></div><div class="overview-grid"></div></aside></main></div>
+<script>(function(){const stage=document.getElementById("stage"),slides=[...document.querySelectorAll(".slide")],nav=document.getElementById("nav"),progress=document.getElementById("progress"),overview=document.getElementById("overview"),grid=overview.querySelector(".overview-grid"),key="dataviz-week4-kami-slide";let current=parseInt(localStorage.getItem(key)||"0",10);if(!Number.isFinite(current))current=0;current=Math.max(0,Math.min(slides.length-1,current));function scale(){stage.style.transform="scale("+Math.min(innerWidth/1920,innerHeight/1080)+")"}function show(n){current=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,i)=>s.classList.toggle("active",i===current));[...nav.children].forEach((b,i)=>b.classList.toggle("active",i===current));[...grid.children].forEach((b,i)=>b.classList.toggle("active",i===current));progress.style.width=((current+1)/slides.length*100)+"%";localStorage.setItem(key,String(current));document.title=(current+1)+"/"+slides.length+" · "+slides[current].dataset.title+" · 데이터시각화"}function toggle(force){const open=typeof force==="boolean"?force:!overview.classList.contains("open");overview.classList.toggle("open",open);overview.setAttribute("aria-hidden",String(!open))}slides.forEach((s,i)=>{s.querySelector(".counter").textContent=String(i+1).padStart(2,"0")+" / "+String(slides.length).padStart(2,"0");const dot=document.createElement("button");dot.type="button";dot.setAttribute("aria-label",(i+1)+"번 슬라이드");dot.onclick=()=>show(i);nav.appendChild(dot);const card=document.createElement("button");card.type="button";card.className="overview-card";card.innerHTML="<b>"+String(i+1).padStart(2,"0")+" / "+String(slides.length).padStart(2,"0")+"</b><span>"+s.dataset.title+"</span>";card.onclick=()=>{toggle(false);show(i)};grid.appendChild(card)});addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();toggle();return}if(overview.classList.contains("open"))return;if(["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)){e.preventDefault();show(current+1)}else if(["ArrowLeft","ArrowUp","PageUp"].includes(e.key)){e.preventDefault();show(current-1)}else if(e.key==="Home"){e.preventDefault();show(0)}else if(e.key==="End"){e.preventDefault();show(slides.length-1)}});addEventListener("resize",scale);scale();show(current)})();</script></body></html>
