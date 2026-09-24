@@ -62,70 +62,73 @@ h1,h2{line-height:1.3}
 .mini-table{font-size:25px}.mini-table th{font:24px var(--sans)}.mini-table th,.mini-table td{padding:14px 8px}
 .slide[data-slide-id="invariant-validation"] .trace-grid{grid-template-columns:.7fr 1.8fr .8fr}
 .slide[data-slide-id="shift"] .trace-grid{grid-template-columns:.55fr 1.25fr 1.55fr}
+
+/* Data headers retain the exact identifiers used by the executable cells. */
+.mini-table th,.mini-table td{padding:12px 6px;white-space:nowrap;font-family:var(--mono);font-size:24px}
+.data-note{font-size:24px;line-height:1.35;margin-top:14px}
+.slide[data-slide-id="sales-dataframe"] .trace-grid,.slide[data-slide-id="integrated-pipeline"] .trace-grid{grid-template-columns:1.25fr 1.3fr 1fr}
+.slide[data-slide-id="shift"] .trace-grid{grid-template-columns:1fr 1.2fr 1.5fr}
+.slide[data-slide-id="invariant-validation"] .trace-grid{grid-template-columns:1.15fr 1.75fr .65fr}
 </style></head><body><div id="viewport"><main id="stage"><div id="deck">
 <section class="slide dark cover" data-slide-id="outline" data-title="Outline">
 <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>01 / 21</span></div><div class="slide-foot"><span>Outline</span><span class="counter"></span></div><div class="slide-inner cover-grid"><div><p class="eyebrow">데이터 요약과 시계열 처리</p><h1>Outline</h1><p class="lede">거래 네 건에서 매장 담당자에게 전달할 범주·월별 매출 요약표를 만든다.</p></div><div class="cover-cards"><article class="panel"><h3>입력과 전달물</h3><ul class="dash"><li>전: 1월 drink 10·20, 2월 drink 30·food 40.</li><li>후: 월별 30·70, 범주별 drink 60·food 40.</li></ul></article><article class="panel"><h3>학습 순서</h3><ul class="dash"><li>문자열 정리 → 그룹 요약 → 행·열 교차표 → 시간값 변환과 구간 요약.</li><li>같은 입력의 처리 전후를 비교한 뒤 선택·계산·검산까지 연결한다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="sales-dataframe" data-title="거래 기록 DataFrame 생성"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>02 / 21</span></div><div class="slide-foot"><span>거래 기록 DataFrame 생성</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">02 · PANDAS</p><h2>거래 기록 DataFrame 생성</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 거래 4건 · 날짜는 모두 2026년</div><pre>ID  날짜   범주        매출
-1   01-03  &quot; Drink &quot;    10
-2   01-10  &quot;drink&quot;      20
-3   02-01  &quot;DRINK&quot;      30
-4   02-14  &quot;Food&quot;       40</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>import pandas as pd
+<section class="slide trace" data-slide-id="sales-dataframe" data-title="거래 기록 DataFrame 생성"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>02 / 21</span></div><div class="slide-foot"><span>거래 기록 DataFrame 생성</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">02 · PANDAS</p><h2>거래 기록 DataFrame 생성</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales 생성에 사용할 값</div><table class="mini-table"><thead><tr><th></th><th>occurred_at</th><th>category</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>2026-01-03</td><td>" Drink "</td><td>10</td></tr><tr><td>2</td><td>2026-01-10</td><td>"drink"</td><td>20</td></tr><tr><td>3</td><td>2026-02-01</td><td>"DRINK"</td><td>30</td></tr><tr><td>4</td><td>2026-02-14</td><td>"Food"</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>import pandas as pd
 import numpy as np
 sales = pd.DataFrame({
- &quot;category&quot;: [&quot; Drink &quot;, &quot;drink&quot;, &quot;DRINK&quot;, &quot;Food&quot;],
- &quot;sales&quot;: [10, 20, 30, 40],
- &quot;channel&quot;: [&quot;web&quot;, &quot;web&quot;, &quot;store&quot;, &quot;store&quot;],
- &quot;occurred_at&quot;: [&quot;2026-01-03&quot;, &quot;2026-01-10&quot;,
-                 &quot;2026-02-01&quot;, &quot;2026-02-14&quot;],
+ "category": [" Drink ", "drink", "DRINK", "Food"],
+ "sales": [10, 20, 30, 40],
+ "channel": ["web", "web", "store", "store"],
+ "occurred_at": ["2026-01-03", "2026-01-10",
+                 "2026-02-01", "2026-02-14"],
 }, index=[1, 2, 3, 4])
-print(sales[[&quot;sales&quot;, &quot;channel&quot;]])</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>sales channel
+print(sales[["sales", "channel"]])</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>sales channel
 1     10     web
 2     20     web
 3     30   store
-4     40   store</pre></div></div><div class="explain-grid"><article class="panel"><h3>거래 한 건이 한 행</h3><ul class="dash"><li>행 인덱스 1–4를 거래 ID로 사용한다. sales는 매출(천 원), channel은 판매 경로다.</li><li>공백·대소문자가 다른 세 표기는 모두 음료 범주다. 정리한 뒤 합친다.</li></ul></article><article class="panel"><h3>표 생성과 전달 목표</h3><ul class="dash"><li>pd는 pandas, np는 NumPy의 별칭이다. {열 이름: 값 목록}으로 네 열을 만들고 index로 행 이름을 붙인다.</li><li>두 달의 전체 거래가 모두 수록됐다고 가정한다. 총매출 100을 범주·월별 요약표로 전달한다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="category-cleaning" data-title="열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>03 / 21</span></div><div class="slide-foot"><span>열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">03 · PANDAS</p><h2>열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 category 열</div><pre>ID  category
-1   &quot; Drink &quot;
-2   &quot;drink&quot;
-3   &quot;DRINK&quot;
-4   &quot;Food&quot;</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>sales[&quot;category_clean&quot;] = (
- sales[&quot;category&quot;].astype(&quot;string&quot;)
+4     40   store</pre></div></div><div class="explain-grid"><article class="panel"><h3>거래 한 건이 한 행</h3><ul class="dash"><li>이름 없는 행 인덱스 1–4가 거래 ID다. occurred_at은 시점, category는 범주, sales는 매출(천 원), channel은 판매 경로다.</li><li>공백·대소문자가 다른 세 표기는 모두 음료 범주다. 정리한 뒤 합친다.</li></ul></article><article class="panel"><h3>표 생성과 전달 목표</h3><ul class="dash"><li>pd는 pandas, np는 NumPy의 별칭이다. {열 이름: 값 목록}으로 네 열을 만들고 index로 행 이름을 붙인다.</li><li>두 달의 전체 거래가 모두 수록됐다고 가정한다. 총매출 100을 범주·월별 요약표로 전달한다.</li></ul></article></div></div></section>
+<section class="slide trace" data-slide-id="category-cleaning" data-title="열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>03 / 21</span></div><div class="slide-foot"><span>열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">03 · PANDAS</p><h2>열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 category 열</div><pre>    category
+1   " Drink "
+2   "drink"
+3   "DRINK"
+4   "Food"</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>sales["category_clean"] = (
+ sales["category"].astype("string")
  .str.strip().str.lower()
 )
-print(sales[&quot;category_clean&quot;])
+print(sales["category_clean"])
 </pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>1    drink
 2    drink
 3    drink
 4     food
-Name: category_clean, dtype: string</pre></div></div><div class="explain-grid"><article class="panel"><h3>연산 순서와 각 줄의 역할</h3><ul class="dash"><li>astype(&quot;string&quot;)은 결측을 보존하는 문자열 자료형으로 바꾼다. str은 열 전체에 문자열 연산을 적용하는 접근자다.</li><li>strip()은 양끝 공백을, lower()는 영문 대소문자 차이를 없앤다. &quot; Drink &quot; → &quot;Drink&quot; → &quot;drink&quot;다.</li></ul></article><article class="panel"><h3>변한 값과 유지된 대응</h3><ul class="dash"><li>음료 세 행이 같은 키 drink를 갖는다. 매출 10·20·30과 거래 ID 1·2·3은 유지된다.</li><li>원본 category 열을 남기고 category_clean 열을 추가한다. 반복문 없이 모든 행에 같은 규칙을 적용한다.</li></ul></article></div></div></section>
-<section class="slide trace group-figure" data-slide-id="groupby-contract" data-title="groupby의 분할·적용·결합 구조"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>04 / 21</span></div><div class="slide-foot"><span>groupby의 분할·적용·결합 구조</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">04 · PANDAS</p><h2>groupby의 분할·적용·결합 구조</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 교재 그림의 Key·Data</div><pre>행   Key  Data
+Name: category_clean, dtype: string</pre></div></div><div class="explain-grid"><article class="panel"><h3>연산 순서와 각 줄의 역할</h3><ul class="dash"><li>astype("string")은 결측을 보존하는 문자열 자료형으로 바꾼다. str은 열 전체에 문자열 연산을 적용하는 접근자다.</li><li>strip()은 양끝 공백을, lower()는 영문 대소문자 차이를 없앤다. " Drink " → "Drink" → "drink"다.</li></ul></article><article class="panel"><h3>변한 값과 유지된 대응</h3><ul class="dash"><li>음료 세 행이 같은 키 drink를 갖는다. 매출 10·20·30과 거래 ID 1·2·3은 유지된다.</li><li>원본 category 열을 남기고 category_clean 열을 추가한다. 반복문 없이 모든 행에 같은 규칙을 적용한다.</li></ul></article></div></div></section>
+<section class="slide trace group-figure" data-slide-id="groupby-contract" data-title="groupby의 분할·적용·결합 구조"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>04 / 21</span></div><div class="slide-foot"><span>groupby의 분할·적용·결합 구조</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">04 · PANDAS</p><h2>groupby의 분할·적용·결합 구조</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 교재 그림의 Key·Data</div><pre>     Key  Data
 0     A     1
 1     B     2
 2     C     3
 3     A     4
 4     B     5
 5     C     6</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>example = pd.DataFrame({
- &quot;Key&quot;: list(&quot;ABCABC&quot;),
- &quot;Data&quot;: [1, 2, 3, 4, 5, 6]
+ "Key": list("ABCABC"),
+ "Data": [1, 2, 3, 4, 5, 6]
 })
-print(example.groupby(&quot;Key&quot;)[&quot;Data&quot;].sum())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>Key
+print(example.groupby("Key")["Data"].sum())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>Key
 A    5
 B    7
 C    9
-Name: Data, dtype: int64</pre></div></div><figure class="figure textbook"><img src="assets/figure_20_1_groupby.png" alt="교재 Figure 20-1: 키별 분할, 그룹 합계 적용, 결과 결합"/><figcaption>왼쪽 원본 → 같은 키의 묶음 → 각 합계 → 오른쪽 결과. 교재 Figure 20-1.</figcaption></figure><div class="explain-grid"><article class="panel"><h3>분할 → 적용 → 결합</h3><ul class="dash"><li>그룹은 키가 같은 원본 행의 묶음이다. A는 행 0·3의 값 [1,4], B는 [2,5], C는 [3,6]을 받는다.</li><li>각 묶음에 sum을 적용한 5·7·9를 키별 한 행으로 결합한다. groupby만 호출하면 아직 합계 표가 아니다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="named-aggregation" data-title="그룹별 합계·건수·평균"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>05 / 21</span></div><div class="slide-foot"><span>그룹별 합계·건수·평균</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">05 · PANDAS</p><h2>그룹별 합계·건수·평균</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 관련 두 열</div><pre>ID  category_clean  sales
+Name: Data, dtype: int64</pre></div></div><figure class="figure textbook"><img alt="교재 Figure 20-1: 키별 분할, 그룹 합계 적용, 결과 결합" src="assets/figure_20_1_groupby.png"/><figcaption>왼쪽 원본 → 같은 키의 묶음 → 각 합계 → 오른쪽 결과. 교재 Figure 20-1.</figcaption></figure><div class="explain-grid"><article class="panel"><h3>분할 → 적용 → 결합</h3><ul class="dash"><li>그룹은 키가 같은 원본 행의 묶음이다. A는 행 0·3의 값 [1,4], B는 [2,5], C는 [3,6]을 받는다.</li><li>각 묶음에 sum을 적용한 5·7·9를 키별 한 행으로 결합한다. groupby만 호출하면 아직 합계 표가 아니다.</li></ul></article></div></div></section>
+<section class="slide trace" data-slide-id="named-aggregation" data-title="그룹별 합계·건수·평균"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>05 / 21</span></div><div class="slide-foot"><span>그룹별 합계·건수·평균</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">05 · PANDAS</p><h2>그룹별 합계·건수·평균</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 관련 두 열</div><pre>    category_clean  sales
 1   drink              10
 2   drink              20
 3   drink              30
-4   food               40</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>summary = sales.groupby(&quot;category_clean&quot;).agg(
- n=(&quot;sales&quot;, &quot;size&quot;),
- total=(&quot;sales&quot;, &quot;sum&quot;),
- avg=(&quot;sales&quot;, &quot;mean&quot;)
+4   food               40</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>summary = sales.groupby("category_clean").agg(
+ n=("sales", "size"),
+ total=("sales", "sum"),
+ avg=("sales", "mean")
 )
 print(summary)</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>n  total   avg
 category_clean                
 drink           3     60  20.0
 food            1     40  40.0</pre></div></div><div class="explain-grid"><article class="panel"><h3>집계의 입력과 결과</h3><ul class="dash"><li>drink 그룹은 ID 1·2·3의 세 행이다. 건수 3, 합계 10+20+30=60, 평균 60/3=20이다. food는 한 행이다.</li><li>agg(결과열=(입력열, 함수))다. n·total·avg는 새 열 이름이다. 키가 결과 인덱스가 되고 4행이 2행으로 줄어든다.</li></ul></article><article class="panel"><h3>결측과 분모</h3><ul class="dash"><li>size는 전체 행 수, count는 유효값 수다. [10, 결측, 30]이면 size=3, count=2, mean=20이다.</li><li>이 입력의 매출·범주에는 결측이 없다. 그룹 키의 결측은 기본 제외되므로 실제 자료에서는 먼저 검사한다.</li></ul></article></div></div></section>
-<section class="slide trace" data-slide-id="group-operation-contracts" data-title="집계·변환·필터의 출력 행 수"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>06 / 21</span></div><div class="slide-foot"><span>집계·변환·필터의 출력 행 수</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">06 · PANDAS</p><h2>집계·변환·필터의 출력 행 수</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 관련 열과 그룹</div><pre>ID  category_clean  sales
+<section class="slide trace" data-slide-id="group-operation-contracts" data-title="집계·변환·필터의 출력 행 수"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>06 / 21</span></div><div class="slide-foot"><span>집계·변환·필터의 출력 행 수</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">06 · PANDAS</p><h2>집계·변환·필터의 출력 행 수</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 관련 열과 그룹</div><pre>    category_clean  sales
 1   drink              10
 2   drink              20
 3   drink              30
@@ -143,7 +146,7 @@ print("남은 ID:", kept.index.tolist())</pre></div><div class="codebox text"><d
 4    40
 Name: sales, dtype: int64
 남은 ID: [1, 2, 3]</pre></div></div><div class="explain-grid"><article class="panel"><h3>합계를 원래 행에 대응시키는 transform</h3><ul class="dash"><li>drink의 합계 60을 ID 1·2·3 각각에, food의 합계 40을 ID 4에 붙인다. 결과는 ID를 유지한 4행이다.</li><li>group_total은 그룹당 한 행의 표가 아니다. 예를 들어 ID 1의 그룹 내 비율은 10/60, ID 2는 20/60이다.</li></ul></article><article class="panel"><h3>그룹 전체를 선택하는 filter</h3><ul class="dash"><li>lambda g는 이름 없는 함수다. g에 drink의 원본 세 행이 들어오면 len(g)=3 → 참, food의 한 행이면 1 → 거짓이다.</li><li>참인 그룹의 원본 행만 남긴다. 집계는 2행, transform은 4행, 이 filter는 ID 1·2·3의 3행이다.</li></ul></article></div></div></section>
-<section class="slide trace" data-slide-id="pivot-table" data-title="두 범주를 행과 열로 배치하는 피벗 테이블"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>07 / 21</span></div><div class="slide-foot"><span>두 범주를 행과 열로 배치하는 피벗 테이블</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">07 · PANDAS</p><h2>두 범주를 행과 열로 배치하는 피벗 테이블</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 교차 요약 입력</div><table class="mini-table"><thead><tr><th>ID</th><th>범주</th><th>경로</th><th>매출</th></tr></thead><tbody><tr><td>1</td><td>drink</td><td>web</td><td>10</td></tr><tr><td>2</td><td>drink</td><td>web</td><td>20</td></tr><tr><td>3</td><td>drink</td><td>store</td><td>30</td></tr><tr><td>4</td><td>food</td><td>store</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>matrix = sales.pivot_table(
+<section class="slide trace" data-slide-id="pivot-table" data-title="두 범주를 행과 열로 배치하는 피벗 테이블"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>07 / 21</span></div><div class="slide-foot"><span>두 범주를 행과 열로 배치하는 피벗 테이블</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">07 · PANDAS</p><h2>두 범주를 행과 열로 배치하는 피벗 테이블</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 교차 요약 입력</div><table class="mini-table"><thead><tr><th></th><th>category_clean</th><th>channel</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>drink</td><td>web</td><td>10</td></tr><tr><td>2</td><td>drink</td><td>web</td><td>20</td></tr><tr><td>3</td><td>drink</td><td>store</td><td>30</td></tr><tr><td>4</td><td>food</td><td>store</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>matrix = sales.pivot_table(
  values="sales",
  index="category_clean",
  columns="channel",
@@ -153,7 +156,7 @@ Name: sales, dtype: int64
 print(matrix)</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>channel         store  web
 category_clean            
 drink              30   30
-food               40    0</pre></div></div><div class="explain-grid"><article class="panel"><h3>행·열·셀의 대응</h3><ul class="dash"><li>범주·경로·매출은 category_clean·channel·sales 열이다. index는 결과 행, columns는 결과 열, values는 요약할 값이다.</li><li>drink×web에는 ID 1·2가 들어가므로 10+20=30이다. drink×store는 30, food×store는 40이다.</li></ul></article><article class="panel"><h3>집계 방식과 빈 조합</h3><ul class="dash"><li>기본 집계는 평균이다. drink×web의 기본값 15와 합계 30은 다르므로 aggfunc="sum"을 명시한다.</li><li>food×web 거래는 없다. 전체 거래가 수록됐다는 가정으로 fill_value=0을 사용한다. 기록 누락이면 0으로 단정할 수 없다.</li></ul></article></div></div></section>
+food               40    0</pre></div></div><div class="explain-grid"><article class="panel"><h3>행·열·셀의 대응</h3><ul class="dash"><li>category_clean은 범주, channel은 판매 경로, sales는 매출이다. index는 결과 행, columns는 결과 열, values는 요약할 값을 지정한다.</li><li>drink×web에는 ID 1·2가 들어가므로 10+20=30이다. drink×store는 30, food×store는 40이다.</li></ul></article><article class="panel"><h3>집계 방식과 빈 조합</h3><ul class="dash"><li>기본 집계는 평균이다. drink×web의 기본값 15와 합계 30은 다르므로 aggfunc="sum"을 명시한다.</li><li>food×web 거래는 없다. 전체 거래가 수록됐다는 가정으로 fill_value=0을 사용한다. 기록 누락이면 0으로 단정할 수 없다.</li></ul></article></div></div></section>
 <section class="slide trace " data-slide-id="string-split" data-title="문자열 분해와 결측을 포함한 조건"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>08 / 21</span></div><div class="slide-foot"><span>문자열 분해와 결측을 포함한 조건</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">08 · PANDAS</p><h2>문자열 분해와 결측을 포함한 조건</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 별도 상품 태그 세 값</div><pre>0  &quot;Latte|HOT&quot;
 1  &quot;hotdog|cold&quot;
 2  결측</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>tags = pd.Series(
@@ -193,51 +196,37 @@ print(&quot;결측:&quot;, checked.isna().sum())</pre></div><div class="codebox 
 2          NaT
 dtype: datetime64[ns]
 결측: 2</pre></div></div><div class="explain-grid"><article class="panel"><h3>기본 변환과 조사용 변환</h3><ul class="dash"><li>to_datetime은 문자열을 계산 가능한 시점으로 바꾼다. 공통 sales의 정상 날짜 네 개를 변환하고 notna().all()로 결측 없음을 검사한다.</li><li>별도 probe에서는 존재하지 않는 2월 30일과 원래 결측이 모두 NaT가 된다. NaT는 시간 결측이다.</li></ul></article><article class="panel"><h3>실패와 결측의 구분</h3><ul class="dash"><li>기본 errors=&quot;raise&quot;는 잘못된 날짜에서 중단한다. coerce는 변환 실패를 NaT로 남겨 원자료를 조사하게 한다.</li><li>isna().sum()은 결측 수 2를 센다. raise도 원래 결측은 허용할 수 있으므로 변환 성공과 필수값 검사는 별개다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="datetime-index" data-title="시간 범위 선택 기준인 DatetimeIndex"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>11 / 21</span></div><div class="slide-foot"><span>시간 범위 선택 기준인 DatetimeIndex</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">11 · PANDAS</p><h2>시간 범위 선택 기준인 DatetimeIndex</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 시점 열 · 2026년</div><pre>ID  occurred_at  sales
-1   01-03          10
-2   01-10          20
-3   02-01          30
-4   02-14          40</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>ts = sales.set_index(&quot;occurred_at&quot;).sort_index()
+<section class="slide trace" data-slide-id="datetime-index" data-title="시간 범위 선택 기준인 DatetimeIndex"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>11 / 21</span></div><div class="slide-foot"><span>시간 범위 선택 기준인 DatetimeIndex</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">11 · PANDAS</p><h2>시간 범위 선택 기준인 DatetimeIndex</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 시점 열 · 2026년</div><table class="mini-table"><thead><tr><th></th><th>occurred_at</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>2026-01-03</td><td>10</td></tr><tr><td>2</td><td>2026-01-10</td><td>20</td></tr><tr><td>3</td><td>2026-02-01</td><td>30</td></tr><tr><td>4</td><td>2026-02-14</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>ts = sales.set_index("occurred_at").sort_index()
 print(type(ts.index).__name__)
-print(ts.loc[&quot;2026-02&quot;, [&quot;sales&quot;]])</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>DatetimeIndex
+print(ts.loc["2026-02", ["sales"]])</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>DatetimeIndex
              sales
 occurred_at       
 2026-02-01      30
-2026-02-14      40</pre></div></div><div class="explain-grid"><article class="panel"><h3>행 이름을 시점으로 전환</h3><ul class="dash"><li>set_index는 occurred_at 열을 행 선택 기준으로 옮긴다. sort_index는 그 시점을 오름차순 정렬한다.</li><li>ts의 인덱스는 DatetimeIndex다. sales 원본의 ID 인덱스와 별개인 새 표를 만든다.</li></ul></article><article class="panel"><h3>달 이름으로 구간 선택</h3><ul class="dash"><li>loc[행 조건, 열 목록]이다. &quot;2026-02&quot;는 2월의 모든 시점을, [&quot;sales&quot;]는 매출 열을 선택한다.</li><li>전의 ID 3·4가 후의 2월 두 행이다. 매출 30+40=70이며 1월 두 행은 결과에서 제외된다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="resample" data-title="같은 시간 구간의 관측을 요약하는 resample"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>12 / 21</span></div><div class="slide-foot"><span>같은 시간 구간의 관측을 요약하는 resample</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">12 · PANDAS</p><h2>같은 시간 구간의 관측을 요약하는 resample</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · ts의 시점별 매출 · 2026년</div><pre>시점    sales
-01-03      10
-01-10      20
-02-01      30
-02-14      40</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>monthly = ts[&quot;sales&quot;].resample(&quot;MS&quot;).sum()
+2026-02-14      40</pre></div></div><div class="explain-grid"><article class="panel"><h3>행 이름을 시점으로 전환</h3><ul class="dash"><li>set_index는 occurred_at 열을 행 선택 기준으로 옮긴다. sort_index는 그 시점을 오름차순 정렬한다.</li><li>ts의 인덱스는 DatetimeIndex다. sales 원본의 ID 인덱스와 별개인 새 표를 만든다.</li></ul></article><article class="panel"><h3>달 이름으로 구간 선택</h3><ul class="dash"><li>loc[행 조건, 열 목록]이다. "2026-02"는 2월의 모든 시점을, ["sales"]는 매출 열을 선택한다.</li><li>전의 ID 3·4가 후의 2월 두 행이다. 매출 30+40=70이며 1월 두 행은 결과에서 제외된다.</li></ul></article></div></div></section>
+<section class="slide trace" data-slide-id="resample" data-title="같은 시간 구간의 관측을 요약하는 resample"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>12 / 21</span></div><div class="slide-foot"><span>같은 시간 구간의 관측을 요약하는 resample</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">12 · PANDAS</p><h2>같은 시간 구간의 관측을 요약하는 resample</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · ts의 시점별 매출 · 2026년</div><table class="mini-table"><thead><tr><th>occurred_at</th><th>sales</th></tr></thead><tbody><tr><td>2026-01-03</td><td>10</td></tr><tr><td>2026-01-10</td><td>20</td></tr><tr><td>2026-02-01</td><td>30</td></tr><tr><td>2026-02-14</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>monthly = ts["sales"].resample("MS").sum()
 print(monthly)</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>occurred_at
 2026-01-01    30
 2026-02-01    70
-Freq: MS, Name: sales, dtype: int64</pre></div></div><div class="explain-grid"><article class="panel"><h3>시점을 월 구간으로 묶기</h3><ul class="dash"><li>resample(&quot;MS&quot;)는 월 시작을 기준으로 나눈다. MS는 월 시작이다. 1월 구간은 01-01 이상·02-01 미만이다.</li><li>1월의 10+20=30, 2월의 30+40=70이다. sum()을 적용해 관측 4행을 월별 2행으로 요약한다.</li></ul></article><article class="panel"><h3>결과의 날짜 읽기</h3><ul class="dash"><li>결과 01-01·02-01은 각 구간의 라벨이다. 실제로 그 날짜에 발생한 거래만 더한 값이 아니다.</li><li>총합 30+70=100은 원자료 합계와 같다. 시간 구간과 집계 함수를 함께 정해야 한다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="resample-vs-asfreq" data-title="resample의 구간 집계와 asfreq의 격자 선택"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>13 / 21</span></div><div class="slide-foot"><span>resample의 구간 집계와 asfreq의 격자 선택</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">13 · PANDAS</p><h2>resample의 구간 집계와 asfreq의 격자 선택</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 별도 3일 관측 · 2026년 3월</div><pre>날짜  daily
-01      10
-02      20
-03      30</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>daily = pd.Series([10, 20, 30],
- index=pd.date_range(&quot;2026-03-01&quot;, periods=3))
-print(&quot;구간 합:&quot;, daily.resample(&quot;2D&quot;).sum().tolist())
-print(&quot;격자 값:&quot;, daily.asfreq(&quot;2D&quot;).tolist())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>구간 합: [30, 30]
+Freq: MS, Name: sales, dtype: int64</pre></div></div><div class="explain-grid"><article class="panel"><h3>시점을 월 구간으로 묶기</h3><ul class="dash"><li>resample("MS")는 월 시작을 기준으로 나눈다. MS는 월 시작이다. 1월 구간은 01-01 이상·02-01 미만이다.</li><li>1월의 10+20=30, 2월의 30+40=70이다. sum()을 적용해 관측 4행을 월별 2행으로 요약한다.</li></ul></article><article class="panel"><h3>결과의 날짜 읽기</h3><ul class="dash"><li>결과 01-01·02-01은 각 구간의 라벨이다. 실제로 그 날짜에 발생한 거래만 더한 값이 아니다.</li><li>총합 30+70=100은 원자료 합계와 같다. 시간 구간과 집계 함수를 함께 정해야 한다.</li></ul></article></div></div></section>
+<section class="slide trace" data-slide-id="resample-vs-asfreq" data-title="resample의 구간 집계와 asfreq의 격자 선택"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>13 / 21</span></div><div class="slide-foot"><span>resample의 구간 집계와 asfreq의 격자 선택</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">13 · PANDAS</p><h2>resample의 구간 집계와 asfreq의 격자 선택</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · daily · 이름 없는 Series</div><pre>2026-03-01    10
+2026-03-02    20
+2026-03-03    30</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>daily = pd.Series([10, 20, 30],
+ index=pd.date_range("2026-03-01", periods=3))
+print("구간 합:", daily.resample("2D").sum().tolist())
+print("격자 값:", daily.asfreq("2D").tolist())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>구간 합: [30, 30]
 격자 값: [10, 30]</pre></div></div><div class="explain-grid"><article class="panel"><h3>같은 입력의 두 결과</h3><ul class="dash"><li>2D는 이틀 간격이다. resample은 1·2일을 묶어 10+20=30, 3일 구간은 30을 낸다. 결과 날짜는 1·3일이다.</li><li>asfreq는 1·3일 격자에 있는 기존 값 10·30을 고른다. 2일의 20을 1일 값에 합치지 않는다.</li></ul></article><article class="panel"><h3>선택 기준</h3><ul class="dash"><li>시간 구간의 통계가 필요하면 resample, 다른 시간 격자에 맞춘 기존 관측값이 필요하면 asfreq를 쓴다.</li><li>이 장부터 빈 칸 채우기까지는 별도 일별 관측 예제다. 거래 네 건을 월별로 요약하는 앞 단계와 구분한다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="fill-direction" data-title="빈 시간 칸의 채우기 방향과 가정"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>14 / 21</span></div><div class="slide-foot"><span>빈 시간 칸의 채우기 방향과 가정</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">14 · PANDAS</p><h2>빈 시간 칸의 채우기 방향과 가정</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 별도 관측 두 값 · 3월</div><pre>날짜  관측값
-01      10
-03      30
-
-02일은 입력에 없음</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>sparse = daily.loc[[&quot;2026-03-01&quot;, &quot;2026-03-03&quot;]]
-grid = sparse.asfreq(&quot;D&quot;)
+<section class="slide trace" data-slide-id="fill-direction" data-title="빈 시간 칸의 채우기 방향과 가정"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>14 / 21</span></div><div class="slide-foot"><span>빈 시간 칸의 채우기 방향과 가정</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">14 · PANDAS</p><h2>빈 시간 칸의 채우기 방향과 가정</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sparse · 이름 없는 Series</div><pre>2026-03-01    10
+2026-03-03    30</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>sparse = daily.loc[["2026-03-01", "2026-03-03"]]
+grid = sparse.asfreq("D")
 print(pd.DataFrame({
- &quot;raw&quot;: grid,
- &quot;ffill&quot;: grid.ffill(),
- &quot;bfill&quot;: grid.bfill(),
+ "raw": grid,
+ "ffill": grid.ffill(),
+ "bfill": grid.bfill(),
 }))</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>raw  ffill  bfill
 2026-03-01  10.0   10.0   10.0
 2026-03-02   NaN   10.0   30.0
-2026-03-03  30.0   30.0   30.0</pre></div></div><div class="explain-grid"><article class="panel"><h3>격자 생성과 값 채우기</h3><ul class="dash"><li>asfreq(&quot;D&quot;)는 2일 행을 새로 만들고 관측이 없으므로 NaN을 둔다. ffill은 앞의 10, bfill은 뒤의 30으로 그 칸을 채운다.</li><li>1·3일의 실제 관측값은 변하지 않는다. 오른쪽 세 열은 같은 결측에 적용할 대안이다.</li></ul></article><article class="panel"><h3>각 대안이 추가하는 가정</h3><ul class="dash"><li>ffill은 직전 상태 유지, bfill은 다음 값을 앞당겨 사용한다는 가정이다. 미래값을 쓸 수 없는 예측에는 bfill이 부적절하다.</li><li>fillna(0)은 0이라는 별도 가정이다. 거래 미발생과 기록 누락을 구분한 뒤 방법을 선택한다.</li></ul></article></div></div></section>
-<section class="slide trace" data-slide-id="shift" data-title="직전 값 비교와 두 관측 이동 평균"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>15 / 21</span></div><div class="slide-foot"><span>직전 값 비교와 두 관측 이동 평균</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">15 · PANDAS</p><h2>직전 값 비교와 두 관측 이동 평균</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 공통 거래로 만든 monthly</div><pre>월    sales
-01      30
-02      70</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>change = pd.DataFrame({"sales": monthly})
+2026-03-03  30.0   30.0   30.0</pre></div></div><div class="explain-grid"><article class="panel"><h3>격자 생성과 값 채우기</h3><ul class="dash"><li>asfreq("D")는 2일 행을 새로 만들고 관측이 없으므로 NaN을 둔다. ffill은 앞의 10, bfill은 뒤의 30으로 그 칸을 채운다.</li><li>1·3일의 실제 관측값은 변하지 않는다. 오른쪽 세 열은 같은 결측에 적용할 대안이다.</li></ul></article><article class="panel"><h3>각 대안이 추가하는 가정</h3><ul class="dash"><li>ffill은 직전 상태 유지, bfill은 다음 값을 앞당겨 사용한다는 가정이다. 미래값을 쓸 수 없는 예측에는 bfill이 부적절하다.</li><li>fillna(0)은 0이라는 별도 가정이다. 거래 미발생과 기록 누락을 구분한 뒤 방법을 선택한다.</li></ul></article></div></div></section>
+<section class="slide trace" data-slide-id="shift" data-title="직전 값 비교와 두 관측 이동 평균"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>15 / 21</span></div><div class="slide-foot"><span>직전 값 비교와 두 관측 이동 평균</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">15 · PANDAS</p><h2>직전 값 비교와 두 관측 이동 평균</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 공통 거래로 만든 monthly</div><table class="mini-table"><thead><tr><th>occurred_at</th><th>sales</th></tr></thead><tbody><tr><td>2026-01-01</td><td>30</td></tr><tr><td>2026-02-01</td><td>70</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>change = pd.DataFrame({"sales": monthly})
 change["previous"] = monthly.shift(1)
 change["change"] = monthly - change["previous"]
 change["rolling_2"] = monthly.rolling(2).mean()
@@ -247,38 +236,34 @@ print(change.rename(columns={
 occurred_at                           
 2026-01-01      30   NaN     NaN   NaN
 2026-02-01      70  30.0    40.0  50.0</pre></div></div><div class="explain-grid"><article class="panel"><h3>직전 값을 같은 행으로 가져오기</h3><ul class="dash"><li>이제 공통 거래의 월별 표로 돌아온다. shift(1)은 인덱스를 유지하고 값을 한 행 아래로 옮긴다. shift(-1)은 다음 값을 가져온다.</li><li>2월의 prev=30, 변화량=70−30=40이다. 첫 달은 직전 값이 없어 NaN이다. rename은 출력의 previous·rolling_2 이름을 prev·avg2로 줄인다.</li></ul></article><article class="panel"><h3>현재와 직전 관측의 평균</h3><ul class="dash"><li>rolling(2).mean()은 두 행 창의 평균이다. 기본 min_periods=2·center=False로 현재와 직전 값이 모두 필요하다.</li><li>2월 avg2=(30+70)/2=50이다. 첫 NaN을 0으로 바꾸지 않는다. 이 표는 매달 한 행이지만 불규칙한 두 거래는 두 달이 아니다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="query" data-title="문자열 식으로 행 선택과 열 계산"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>16 / 21</span></div><div class="slide-foot"><span>문자열 식으로 행 선택과 열 계산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">16 · PANDAS</p><h2>문자열 식으로 행 선택과 열 계산</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 관련 두 열</div><pre>ID  sales  channel
+<section class="slide trace" data-slide-id="query" data-title="문자열 식으로 행 선택과 열 계산"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>16 / 21</span></div><div class="slide-foot"><span>문자열 식으로 행 선택과 열 계산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">16 · PANDAS</p><h2>문자열 식으로 행 선택과 열 계산</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 관련 두 열</div><pre>    sales  channel
 1      10  web
 2      20  web
 3      30  store
 4      40  store</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>threshold = 15
-selected = sales.query(&#x27;sales &gt;= @threshold and channel == &quot;web&quot;&#x27;)
-with_tax = sales.eval(&quot;tax = sales * 0.1&quot;)
-print(&quot;선택 ID:&quot;, selected.index.tolist())
-print(&quot;세금:&quot;, with_tax[&quot;tax&quot;].tolist())
-print(np.allclose(with_tax[&quot;tax&quot;], sales[&quot;sales&quot;] * 0.1))</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>선택 ID: [2]
+selected = sales.query('sales &gt;= @threshold and channel == "web"')
+with_tax = sales.eval("tax = sales * 0.1")
+print("선택 ID:", selected.index.tolist())
+print("세금:", with_tax["tax"].tolist())
+print(np.allclose(with_tax["tax"], sales["sales"] * 0.1))</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>선택 ID: [2]
 세금: [1.0, 2.0, 3.0, 4.0]
 True</pre></div></div><div class="explain-grid"><article class="panel"><h3>query: 조건으로 원본 행 선택</h3><ul class="dash"><li>식 안의 sales·channel은 열 이름이다. @threshold는 식 밖의 Python 변수 15를 참조한다.</li><li>매출 15 이상과 web 조건을 모두 만족하는 ID 2만 남는다. 원본 네 행은 수정하지 않는다.</li></ul></article><article class="panel"><h3>eval: 식으로 새 열 계산</h3><ul class="dash"><li>tax는 설명용 10% 세금 열이다. eval은 각 행의 매출에 0.1을 곱한 새 표를 반환한다. 원본 sales에는 tax가 추가되지 않는다.</li><li>np.allclose는 일반 열 연산과 값이 허용오차 안에서 같은지 검사한다. 인덱스·열 이름까지 비교하는 검사는 아니다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="eval-query-performance" data-title="큰 중간 배열에서의 eval·query 선택 조건"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>17 / 21</span></div><div class="slide-foot"><span>큰 중간 배열에서의 eval·query 선택 조건</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">17 · PANDAS</p><h2>큰 중간 배열에서의 eval·query 선택 조건</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 비교 대상</div><pre>ID  sales  channel
+<section class="slide trace" data-slide-id="eval-query-performance" data-title="큰 중간 배열에서의 eval·query 선택 조건"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>17 / 21</span></div><div class="slide-foot"><span>큰 중간 배열에서의 eval·query 선택 조건</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">17 · PANDAS</p><h2>큰 중간 배열에서의 eval·query 선택 조건</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 비교 대상</div><pre>    sales  channel
 1      10  web
 2      20  web
 3      30  store
-4      40  store</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>tmp1 = sales[&quot;sales&quot;] &gt;= 15
-tmp2 = sales[&quot;channel&quot;] == &quot;web&quot;
+4      40  store</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>tmp1 = sales["sales"] &gt;= 15
+tmp2 = sales["channel"] == "web"
 mask = tmp1 &amp; tmp2
 print(tmp1.tolist())
 print(tmp2.tolist())
 print(mask.tolist())
-print(&quot;bytes:&quot;, tmp1.values.nbytes,
+print("bytes:", tmp1.values.nbytes,
  tmp2.values.nbytes, mask.values.nbytes)</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>[False, True, True, True]
 [True, True, False, False]
 [False, True, False, False]
 bytes: 4 4 4</pre></div></div><div class="explain-grid"><article class="panel"><h3>입력 네 행 → 논리 배열 세 개</h3><ul class="dash"><li>첫 조건은 [거짓,참,참,참], 둘째는 [참,참,거짓,거짓]이다. &amp;는 같은 ID의 조건을 결합해 ID 2만 참으로 만든다.</li><li>bool 값은 여기서 각 1바이트다. 네 행×세 배열=12바이트, 1천만 행이면 배열 데이터만 30,000,000바이트다.</li></ul></article><article class="panel"><h3>비용을 측정한 뒤 대안 선택</h3><ul class="dash"><li>nbytes는 배열 데이터량이며 인덱스·엔진 버퍼를 제외한다. query의 실제 절감량이나 최고 메모리를 뜻하지 않는다.</li><li>NumExpr는 지원하는 수치식을 묶음 계산하는 엔진이다. 작은 표는 일반식으로 충분하고 큰 표는 동치성·시간·메모리를 실측한다.</li></ul></article></div></div></section>
-<section class="slide trace" data-slide-id="integrated-pipeline" data-title="정리·시간화·요약 순서를 기록하는 통합 파이프라인"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>18 / 21</span></div><div class="slide-foot"><span>정리·시간화·요약 순서를 기록하는 통합 파이프라인</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">18 · PANDAS</p><h2>정리·시간화·요약 순서를 기록하는 통합 파이프라인</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 원래 범주·시점 · 2026년</div><pre>날짜   category    sales
-01-03  " Drink "      10
-01-10  "drink"        20
-02-01  "DRINK"        30
-02-14  "Food"         40</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>prepared = sales.assign(
+<section class="slide trace" data-slide-id="integrated-pipeline" data-title="정리·시간화·요약 순서를 기록하는 통합 파이프라인"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>18 / 21</span></div><div class="slide-foot"><span>정리·시간화·요약 순서를 기록하는 통합 파이프라인</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">18 · PANDAS</p><h2>정리·시간화·요약 순서를 기록하는 통합 파이프라인</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 관련 열</div><table class="mini-table"><thead><tr><th></th><th>occurred_at</th><th>category_clean</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>2026-01-03</td><td>drink</td><td>10</td></tr><tr><td>2</td><td>2026-01-10</td><td>drink</td><td>20</td></tr><tr><td>3</td><td>2026-02-01</td><td>drink</td><td>30</td></tr><tr><td>4</td><td>2026-02-14</td><td>food</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>prepared = sales.assign(
  category=sales["category_clean"]
 ).set_index("occurred_at").sort_index()
 by_month = prepared.groupby([
@@ -289,35 +274,31 @@ print(plot_data)</pre></div><div class="codebox text"><div class="code-label">�
 occurred_at              
 2026-01-01      30      0
 2026-02-01      30     40</pre></div></div><div class="explain-grid"><article class="panel"><h3>개별 기능 → 전달할 표 조립</h3><ul class="dash"><li>범주와 날짜는 앞에서 정리했다. assign은 category_clean 값을 category에 넣은 새 표를 만들고 set_index·sort_index는 시간 그룹 기준을 만든다.</li><li>Grouper(freq="MS")는 월별 묶기 규칙이다. 월·범주로 합치면 (1월,drink)=30, (2월,drink)=30, (2월,food)=40이다.</li></ul></article><article class="panel"><h3>묶인 결과를 두 축에 배치</h3><ul class="dash"><li>unstack은 마지막 키 category를 열로 옮긴다. 1월 drink의 합계 30이 1월 행·drink 열의 같은 값으로 이동한다.</li><li>전체 거래가 있으므로 1월 food 미발생 조합을 0으로 둔다. 앞의 범주×경로 표와 달리 이 표는 월×범주 2×2다.</li></ul></article></div></div></section>
-<section class="slide trace chart-trace" data-slide-id="summary-visuals" data-title="질문에 따른 동일 요약값의 시각화"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>19 / 21</span></div><div class="slide-foot"><span>질문에 따른 동일 요약값의 시각화</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">19 · PANDAS</p><h2>질문에 따른 동일 요약값의 시각화</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 같은 네 거래의 요약값</div><pre>월별: 1월 30, 2월 70
-범주별: drink 60, food 40
+<section class="slide trace chart-trace" data-slide-id="summary-visuals" data-title="질문에 따른 동일 요약값의 시각화"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>19 / 21</span></div><div class="slide-foot"><span>질문에 따른 동일 요약값의 시각화</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">19 · PANDAS</p><h2>질문에 따른 동일 요약값의 시각화</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 같은 네 거래의 요약값</div><pre>monthly: [30, 70]
+summary["total"]: [60, 40]
 
-범주×경로
-       store  web
-drink     30   30
-food      40    0</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre># 앞에서 만든 세 요약표
-print(&quot;월별:&quot;, monthly.tolist())
-print(&quot;범주별:&quot;, summary[&quot;total&quot;].tolist())
-print(&quot;교차 셀:&quot;, matrix.values.tolist())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>월별: [30, 70]
+matrix
+channel         store  web
+category_clean
+drink              30   30
+food               40    0</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre># 앞에서 만든 세 요약표
+print("월별:", monthly.tolist())
+print("범주별:", summary["total"].tolist())
+print("교차 셀:", matrix.values.tolist())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>월별: [30, 70]
 범주별: [60, 40]
-교차 셀: [[30, 30], [40, 0]]</pre></div></div><figure class="figure preview"><img src="assets/figure_week5_summary_previews.png" alt="월별 30·70 선, 범주별 60·40 막대, 교차값 30·30·40·0 색상표"/><figcaption>가로축: 월 / 범주 / 판매 경로. 세로축: 매출(천 원) / 매출(천 원) / 범주. 색이 진할수록 매출이 크다.</figcaption></figure><div class="explain-grid"><article class="panel"><h3>값을 질문에 맞는 도형으로 옮기기</h3><ul class="dash"><li>선의 두 점은 30→70으로 시간 변화를, 막대 높이 60·40은 범주 크기를 나타낸다. 색상표의 숫자는 store·web 교차 셀이다.</li><li>숫자는 그대로 유지하고 표현만 바꾼다. 월×범주 plot_data의 행 합은 30·70, 열 합은 60·40이다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="invariant-validation" data-title="작은 불변량을 이용한 전체 결과 검산"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>20 / 21</span></div><div class="slide-foot"><span>작은 불변량을 이용한 전체 결과 검산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">20 · PANDAS</p><h2>작은 불변량을 이용한 전체 결과 검산</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 검산할 plot_data</div><pre>월     drink  food
-01        30     0
-02        30    40
-
-총합 100, 2×2 표
-반례: 1월 [30,0] → [29,1]</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>expected = [[30, 0], [30, 40]]
+교차 셀: [[30, 30], [40, 0]]</pre></div></div><figure class="figure preview"><img alt="월별 30·70 선, 범주별 60·40 막대, 교차값 30·30·40·0 색상표" src="assets/figure_week5_summary_previews.png"/><figcaption>가로축: 월 / 범주 / 판매 경로. 세로축: 매출(천 원) / 매출(천 원) / 범주. 색이 진할수록 매출이 크다.</figcaption></figure><div class="explain-grid"><article class="panel"><h3>값을 질문에 맞는 도형으로 옮기기</h3><ul class="dash"><li>선의 두 점은 30→70으로 시간 변화를, 막대 높이 60·40은 범주 크기를 나타낸다. 색상표의 숫자는 store·web 교차 셀이다.</li><li>숫자는 그대로 유지하고 표현만 바꾼다. 월×범주 plot_data의 행 합은 30·70, 열 합은 60·40이다.</li></ul></article></div></div></section>
+<section class="slide trace" data-slide-id="invariant-validation" data-title="작은 불변량을 이용한 전체 결과 검산"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>20 / 21</span></div><div class="slide-foot"><span>작은 불변량을 이용한 전체 결과 검산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">20 · PANDAS</p><h2>작은 불변량을 이용한 전체 결과 검산</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 검산할 plot_data</div><table class="mini-table"><thead><tr><th>occurred_at</th><th>drink</th><th>food</th></tr></thead><tbody><tr><td>2026-01-01</td><td>30</td><td>0</td></tr><tr><td>2026-02-01</td><td>30</td><td>40</td></tr></tbody></table><p class="data-note">열 축 이름: category<br/>총합 100, 2×2 표<br/>반례: 첫 행 [30,0] → [29,1]</p></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>expected = [[30, 0], [30, 40]]
 assert len(sales) == 4 and sales.index.is_unique
 assert prepared.index.is_monotonic_increasing
 assert not prepared.index.hasnans
 assert plot_data.shape == (2, 2)
-assert plot_data.values.sum() == sales[&quot;sales&quot;].sum() == 100
+assert plot_data.values.sum() == sales["sales"].sum() == 100
 assert plot_data.values.tolist() == expected
 bad = plot_data.copy()
 bad.iloc[0] = [29, 1]
-print(&quot;정상: 모든 검사 통과&quot;)
-print(&quot;반례 합계:&quot;, bad.values.sum() == 100)
-print(&quot;반례 셀:&quot;, bad.values.tolist() == expected)</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>정상: 모든 검사 통과
+print("정상: 모든 검사 통과")
+print("반례 합계:", bad.values.sum() == 100)
+print("반례 셀:", bad.values.tolist() == expected)</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>정상: 모든 검사 통과
 반례 합계: True
 반례 셀: False</pre></div></div><div class="explain-grid"><article class="panel"><h3>구조·시간·값을 나누어 검사</h3><ul class="dash"><li>assert는 조건이 거짓이면 중단한다. is_unique는 ID 중복 없음, is_monotonic_increasing은 오름차순, hasnans는 결측 유무다.</li><li>shape는 행·열 수다. values.tolist()로 행 순서의 값 목록을 만들고 기대하는 네 셀과 비교한다.</li></ul></article><article class="panel"><h3>합계 검사의 한계</h3><ul class="dash"><li>반례는 1월 drink에서 1을 빼고 food에 1을 더했다. iloc[0]은 첫 행을 위치로 선택한다. 총합 100은 그대로다.</li><li>합계 검사는 참이지만 셀 검사는 거짓이다. 실제 업무에서는 행·열 이름도 확인하고 기대값은 별도로 계산해야 한다.</li></ul></article></div></div></section>
 <section class="slide dark cover" data-slide-id="summary" data-title="Summary">
