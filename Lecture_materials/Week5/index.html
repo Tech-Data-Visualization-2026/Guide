@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>데이터시각화 — 데이터 요약과 시계열 처리</title>
+<meta name="description" content="데이터시각화 5주차 데이터 요약과 시계열 처리 강의 슬라이드 21장">
+<style>
+:root{--paper:#f5f4ed;--ivory:#faf9f5;--sand:#e4e1d7;--sand-dark:#cbc7b9;--ink:#1b365d;--ink-light:#b5c8dc;--near:#171715;--warm:#3d3d39;--stone:#696860;--tag:#e4ecf5;--serif:"Noto Serif KR","Source Han Serif K","NanumMyeongjo",Georgia,serif;--sans:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;--mono:"JetBrains Mono",D2Coding,monospace}
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden}body{background:#101a28;color:var(--near);font-family:var(--sans);-webkit-font-smoothing:antialiased}button{font:inherit}
+#viewport{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}#stage{width:1920px;height:1080px;position:relative;overflow:hidden;transform-origin:center;background:var(--paper);box-shadow:0 24px 80px #0007}#deck{position:absolute;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:82px 96px 72px;overflow:hidden;background:var(--paper)}.slide.active{display:flex}.slide.dark{background:var(--ink);color:var(--ivory)}.slide::after{content:"";position:absolute;width:440px;height:440px;right:-270px;bottom:-270px;border:1px solid var(--sand-dark);border-radius:50%;pointer-events:none}.dark::after{border-color:#faf9f522}
+.chrome{position:absolute;top:28px;left:96px;right:96px;display:flex;justify-content:space-between;align-items:center;font:18px var(--mono);letter-spacing:.08em;color:var(--stone);z-index:3}.dark .chrome{color:#faf9f59e}.brand{display:flex;align-items:center;gap:14px}.mark{display:grid;place-items:center;width:34px;height:34px;border:1px solid currentColor;border-radius:50%;font:18px var(--serif)}
+.slide-foot{position:absolute;left:96px;right:96px;bottom:22px;display:flex;justify-content:space-between;align-items:center;color:var(--stone);font:18px var(--mono);z-index:3}.dark .slide-foot{color:#faf9f59e}.counter{min-width:112px;text-align:center;padding:7px 12px;border:1px solid var(--sand-dark);border-radius:4px;background:var(--ivory);color:var(--near);font-variant-numeric:tabular-nums}.dark .counter{color:var(--ivory);background:transparent;border-color:#faf9f547}
+.slide-inner{width:100%;height:100%;min-height:0;display:grid;align-content:center;gap:22px;position:relative;z-index:2}h1,h2,h3,p{margin:0}h1,h2,h3{font-family:var(--serif);font-weight:500}h1{font-size:74px;line-height:1.12;letter-spacing:-.035em}h2{font-size:46px;line-height:1.16;letter-spacing:-.025em}h3{font-size:28px;line-height:1.25;color:var(--ink)}
+.section-num,.eyebrow{font:20px/1.2 var(--mono);letter-spacing:.11em;color:var(--ink)}.dark .section-num,.dark .eyebrow{color:#faf9f5ad}.lede{font:28px/1.46 var(--serif);color:#faf9f5c5;margin-top:28px}.hl{color:var(--ink-light)}code{padding:2px 7px;background:var(--tag);color:var(--ink);border-radius:3px;font:.88em var(--mono)}strong{font-weight:600;color:var(--near)}
+.cover-grid{grid-template-columns:1.16fr .84fr;gap:62px;align-items:center}.cover h1{color:var(--ivory)}.cover-cards{display:grid;gap:22px}.cover .panel{background:transparent;border-color:#faf9f558}.cover .panel h3{color:var(--ivory)}.cover .dash li{color:#faf9f5c5}.cover .dash li::before{color:var(--ink-light)}
+.title-block{display:grid;gap:10px}.body-grid{display:grid;grid-template-columns:.88fr 1.12fr;gap:36px;align-items:center;min-height:0}.body-grid.image{grid-template-columns:.82fr 1.18fr}.panel-stack{display:grid;gap:14px;align-content:center;min-height:0}.panel-stack.wide{grid-template-columns:1fr 1fr;gap:20px}.panel-stack.wide.one{grid-template-columns:1fr;max-width:1500px;margin:auto;width:100%}
+.sales-dataframe .body-grid{grid-template-columns:.55fr 1.45fr}
+.panel{background:var(--ivory);border-top:2px solid var(--ink);padding:17px 21px;min-height:0}.panel h3{margin-bottom:9px}.panel p{font-size:24px;line-height:1.36;color:var(--warm);margin-bottom:9px}ul.dash{list-style:none;padding:0;margin:0;display:grid;gap:8px}ul.dash li{position:relative;padding-left:22px;font-size:24px;line-height:1.36;color:var(--warm)}ul.dash li::before{content:"–";position:absolute;left:0;color:var(--ink)}
+.evidence-stack{display:grid;gap:12px;align-content:center;min-height:0}.codebox{background:var(--ivory);border:1px solid var(--sand-dark);padding:16px 20px;min-height:0}.codebox.text{background:#eef2f5}.code-label{font:18px var(--mono);color:var(--ink);margin-bottom:9px;letter-spacing:.05em}pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:22px/1.25 var(--mono);color:var(--near);font-variant-numeric:tabular-nums}
+.figure{margin:0;background:var(--ivory);border:1px solid var(--sand-dark);padding:13px;display:grid;place-items:center;min-height:0}.figure img{display:block;max-width:100%;width:100%;height:510px;object-fit:contain}.figure figcaption{width:100%;font:18px/1.35 var(--mono);color:var(--stone);margin-top:8px}.evidence-stack .figure:nth-last-child(n+2):first-child img,.evidence-stack .figure:nth-last-child(n+2):first-child~.figure img{height:290px}.mixed .figure img{height:300px}
+.table-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:34px;align-items:center}.table-wrap{background:var(--ivory);border:1px solid var(--sand-dark);overflow:visible}table{width:100%;border-collapse:collapse;font-size:23px}th,td{padding:16px 18px;text-align:left;border-right:1px solid var(--sand-dark);border-bottom:1px solid var(--sand-dark)}th{font:500 24px var(--serif);color:var(--ink)}td{color:var(--warm)}tr:last-child td{border-bottom:0}th:last-child,td:last-child{border-right:0}
+.dense .body-grid{gap:26px}.dense h2{font-size:41px}.dense .panel-stack{gap:9px}.dense .panel{padding:12px 15px}.dense .panel h3{font-size:25px;margin-bottom:5px}.dense .panel p,.dense ul.dash li{font-size:22px;line-height:1.27}.dense ul.dash{gap:4px}.dense .evidence-stack{gap:7px}.dense .codebox{padding:10px 13px}.dense .code-label{margin-bottom:5px}.dense pre{font-size:22px;line-height:1.12}.dense .figure img{height:265px}
+.end .slide-inner{align-content:end;padding-bottom:70px}.end h2{font-size:68px;color:var(--ivory);max-width:23ch}.takeaways{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #faf9f540;margin-top:20px}.takeaways div{padding:18px 22px;border-right:1px solid #faf9f52e;border-bottom:1px solid #faf9f52e;font-size:22px;line-height:1.34;color:#faf9f5bd}.takeaways div:nth-child(3n){border-right:0}.takeaways div:nth-last-child(-n+3){border-bottom:0}
+#nav{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:8}#nav button{width:7px;height:7px;padding:0;border:0;border-radius:99px;background:#dbe1e7;cursor:pointer}#nav button.active{width:21px;background:var(--ink)}#progress{position:absolute;bottom:0;left:0;height:3px;background:var(--ink);z-index:9;transition:width .25s}
+#overview{position:absolute;inset:0;display:none;z-index:20;background:#f5f4edfa;padding:50px 60px;overflow:auto}#overview.open{display:block}.overview-head{display:flex;justify-content:space-between;margin-bottom:26px;font:18px var(--mono);color:var(--stone)}.overview-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}.overview-card{min-height:122px;text-align:left;padding:16px;border:1px solid var(--sand-dark);background:var(--ivory);color:var(--near);cursor:pointer}.overview-card.active{border:2px solid var(--ink)}.overview-card b{display:block;font:18px var(--mono);color:var(--ink);margin-bottom:9px}.overview-card span{font:500 20px/1.28 var(--serif)}
+@page{size:20in 11.25in;margin:0}@media print{html,body{overflow:visible;background:#fff}#viewport{display:block;position:static}#stage{width:1920px;height:auto;transform:none!important;box-shadow:none}#deck{position:static}.slide{position:relative;display:flex!important;width:1920px;height:1080px;page-break-after:always}#nav,#progress,#overview{display:none!important}}
+
+/* Content is authoritative in slides/; preserve a readable 1920x1080 canvas. */
+.panel p,ul.dash li{font-size:28px;line-height:1.38}
+code{font-size:1em}.code-label,.figure figcaption{font-size:22px;letter-spacing:0}
+.chrome,.slide-foot{font-size:22px}.body-grid,.body-grid.image,.table-layout{align-items:start}
+.panel-stack,.evidence-stack{align-content:start}.dense .panel p,.dense ul.dash li{font-size:26px;line-height:1.32}
+.dense pre,pre{font-size:24px;line-height:1.22}
+.figure figcaption{color:#3d3d39}.takeaways div{font-size:28px}
+.sales-records .body-grid{grid-template-columns:.95fr 1.05fr}
+.figure img{height:570px}.mixed .figure img{height:360px}
+h1,h2{line-height:1.3}
+
+.observation-frequency .body-grid,.window-shape .body-grid,.summary-visuals .body-grid{grid-template-columns:1fr;gap:20px}
+.observation-frequency .evidence-stack,.window-shape .evidence-stack{grid-template-columns:1fr 1fr;align-items:stretch}
+.observation-frequency .evidence-stack .figure img,.window-shape .evidence-stack .figure img{height:400px}
+.observation-frequency .panel,.window-shape .panel{padding:12px 20px}
+.observation-frequency .panel li,.window-shape .panel li{font-size:28px}
+.summary-visuals .panel-stack{grid-template-columns:1fr 1fr;gap:20px}
+.summary-visuals .figure img{height:380px}
+</style></head><body><div id="viewport"><main id="stage"><div id="deck">
+<section class="slide dark cover" data-slide-id="outline" data-title="Outline">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>01 / 21</span></div><div class="slide-foot"><span>Outline</span><span class="counter"></span></div><div class="slide-inner cover-grid"><div><p class="eyebrow">데이터 요약과 시계열 처리</p><h1>Outline</h1><p class="lede">거래 8건을 정리해 매장 담당자에게 전달할 범주·월별 매출 요약표를 만든다.</p></div><div class="cover-cards"><article class="panel"><h3>중심 질문</h3><ul class="dash"><li>여러 거래 행을 범주와 시간별 시각화 입력으로 어떻게 요약하는가?</li><li>요약 과정에서 행 수·합계·결측의 의미가 보존됐음을 어떻게 확인하는가?</li></ul></article><article class="panel"><h3>학습 순서</h3><ul class="dash"><li>문자열 정리 → 범주별 묶기와 요약 → 두 범주의 교차 요약 순서로 익힌다.</li><li>시간값 변환 → 시간 간격별 요약 → 이동 비교 → 전체 파이프라인 검산으로 마무리한다.</li></ul></article></div></div></section>
+<section class="slide sales-dataframe" data-slide-id="sales-dataframe" data-title="거래 기록 DataFrame 생성">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>02 / 21</span></div><div class="slide-foot"><span>거래 기록 DataFrame 생성</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">02 · PANDAS</p><h2>거래 기록 DataFrame 생성</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>실행 가능한 공통 입력</h3><ul class="dash"><li>매장 담당자의 입력은 거래 8건이다. event_id는 거래 ID, occurred_at은 시점, category는 범주다.</li><li>item_tag는 상품|태그, channel은 경로, sales는 매출(천 원), units는 수량(개)이다. 이 셀부터 순서대로 실행한다.</li></ul></article><article class="panel"><h3>셀 구조와 확인 결과</h3><ul class="dash"><li><code>pd</code>는 pandas, <code>np</code>는 NumPy를 가리킨다. 바깥 <code>[ ]</code>는 행 목록, 각 <code>( )</code>는 한 거래의 일곱 값이다.</li><li>columns는 일곱 열 이름을 붙인다. None은 상품 정보 결측이다. 총매출 136을 범주·월·경로별로 요약한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>import numpy as np
+import pandas as pd
+
+sales = pd.DataFrame([
+    (1, "2026-01-03 09:00", " Drink ", "Latte|HOT",     "web",   12, 1),
+    (2, "2026-01-10 10:00", "drink",   "Tea|iced",       "store", 18, 2),
+    (3, "2026-01-31 21:00", "Food",    "Sandwich|cold", "web",   25, 2),
+    (4, "2026-02-01 08:00", "food ",   "Soup|hot",       "store", 15, 1),
+    (5, "2026-02-14 12:00", "DRINK",   None,             "web",   20, 2),
+    (6, "2026-02-28 18:00", "Snack",   "Cookie|sweet",  "store", 10, 1),
+    (7, "2026-03-01 07:00", "snack ",  "Chips|salty",   "web",   14, 1),
+    (8, "2026-03-08 16:00", "FOOD",    "Salad|cold",    "store", 22, 2),
+], columns=["event_id", "occurred_at", "category", "item_tag",
+            "channel", "sales", "units"])</pre></div></div></div></div></section>
+<section class="slide category-cleaning" data-slide-id="category-cleaning" data-title="열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>03 / 21</span></div><div class="slide-foot"><span>열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">03 · PANDAS</p><h2>열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>공백과 대소문자 정리</h3><ul class="dash"><li><code>.astype("string")</code>은 열을 pandas 문자열 자료형으로 명시하고 결측을 문자열로 오인하지 않게 한다.</li><li><code>.str.strip()</code>은 양끝 공백을 제거하고 <code>.str.lower()</code>는 영문 대문자를 소문자로 바꾼다.</li><li>각 행에 반복문을 쓰지 않아도 같은 규칙이 열의 모든 값과 결측에 적용된다.</li></ul></article><article class="panel"><h3>정리 전후의 범주 판정</h3><ul class="dash"><li>원문 그대로 묶으면 <code>" Drink "</code>, <code>"drink"</code>, <code>"DRINK"</code>가 갈라진다. 정리 후 세 거래의 매출은 <code>12+18+20=50</code>으로 모인다.</li><li>벡터화는 같은 연산을 열 전체에 적용하는 인터페이스다. <code>head()</code>는 처음 5행만 보여 주며 행의 순서·거래 ID는 바꾸지 않는다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>sales["category_clean"] = (
+    sales["category"].astype("string").str.strip().str.lower()
+)
+print(sales[["category", "category_clean"]].head())</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>  category category_clean
+0   Drink           drink
+1    drink          drink
+2     Food           food
+3    food            food
+4    DRINK          drink</pre></div></div></div></div></section>
+<section class="slide groupby-contract" data-slide-id="groupby-contract" data-title="groupby의 분할·적용·결합 구조">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>04 / 21</span></div><div class="slide-foot"><span>groupby의 분할·적용·결합 구조</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">04 · PANDAS</p><h2>groupby의 분할·적용·결합 구조</h2></div><div class="body-grid image"><div class="panel-stack"><article class="panel"><h3>세 단계의 의미</h3><ul class="dash"><li>분할은 키가 같은 행을 묶고, 적용은 각 묶음에 합계 같은 함수를 계산한다.</li><li>결합은 그룹별 결과를 하나의 새 표로 모으며 중간 그룹 표는 직접 만들 필요가 없다.</li><li>왼쪽 입력 → 분할 → 합계 적용 → 오른쪽 결합 순으로 읽는다. 그림은 <code>A·B·C</code> 키로 6행을 나눈 뒤 각 그룹의 <code>Data</code>를 합치는 순서다.</li></ul></article><article class="panel"><h3>출력 계약</h3><ul class="dash"><li>집계 뒤에는 그룹 하나가 결과 한 행이 되고 <code>A: 1+4=5</code>, <code>B: 2+5=7</code>, <code>C: 3+6=9</code>이다.</li></ul></article></div><div class="evidence-stack"><figure class="figure"><img alt="groupby의 분할·적용·결합 구조 · 교재 Figure 20-1 · 분할–적용–결합" src="assets/figure_20_1_groupby.png"/><figcaption>교재 Figure 20-1 · 분할–적용–결합</figcaption></figure></div></div></div></section>
+<section class="slide named-aggregation" data-slide-id="named-aggregation" data-title="그룹별 합계·건수·평균"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>05 / 21</span></div><div class="slide-foot"><span>그룹별 합계·건수·평균</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">05 · PANDAS</p><h2>그룹별 합계·건수·평균</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>같은 범주를 묶어 한 행으로 요약</h3><ul class="dash"><li><code>groupby</code>는 같은 키의 거래를 묶는다. <code>as_index=False</code>는 키를 일반 열로 남긴다.</li><li><code>agg(결과열=(입력열, 함수))</code>에서 <code>size</code>는 건수, <code>sum</code>은 합계, <code>mean</code>은 평균이다.</li><li>8행 → 3행, 범주 합계는 50·62·24이며 총합은 136이다.</li></ul></article><article class="panel"><h3>결측과 평균의 분모</h3><ul class="dash"><li>매출 [12, 결측, 20]이면 <code>size=3</code>, 유효값 수 <code>count=2</code>, 평균은 16이다.</li><li>그룹 키의 결측은 기본적으로 제외된다. 이 입력은 범주 결측이 없는지 먼저 검사한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>assert sales["category_clean"].notna().all()
+summary = sales.groupby("category_clean", as_index=False).agg(
+    event_count=("event_id", "size"),
+    total_sales=("sales", "sum"),
+    mean_sales=("sales", "mean"),
+)
+totals = summary[["category_clean", "total_sales"]].rename(
+    columns={"total_sales": "sales"})
+print(summary.to_string(index=False))</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>category_clean  event_count  total_sales  mean_sales
+         drink            3           50   16.666667
+          food            3           62   20.666667
+         snack            2           24   12.000000</pre></div></div></div></div></section>
+<section class="slide group-operation-contracts" data-slide-id="group-operation-contracts" data-title="집계·변환·필터의 출력 행 수"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>06 / 21</span></div><div class="slide-foot"><span>집계·변환·필터의 출력 행 수</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">06 · PANDAS</p><h2>집계·변환·필터의 출력 행 수</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>원래 거래마다 그룹 기준값이 필요할 때</h3><ul class="dash"><li>앞의 집계는 그룹당 한 행이다. <code>transform("sum")</code>은 그룹 합계를 원래 8행에 반복해 돌려준다.</li><li>drink 거래 비율은 <code>12/50=0.24</code>, <code>18/50=0.36</code>이다.</li></ul></article><article class="panel"><h3>조건에 맞는 그룹 전체를 남길 때</h3><ul class="dash"><li><code>filter</code>는 그룹 단위 참·거짓으로 포함 여부를 정한다. <code>lambda g</code>는 그룹을 받아 <code>len(g)</code>로 행 수를 센다.</li><li>3건 이상인 drink·food의 원래 6행만 남는다. snack 2행은 함께 제외된다.</li><li>집계 3행·변환 8행·필터 6행: 필요한 결과 모양에 따라 선택한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>group_total = sales.groupby("category_clean")["sales"].transform("sum")
+share = sales["sales"] / group_total
+kept = sales.groupby("category_clean").filter(lambda g: len(g) &gt;= 3)
+print("그룹 합계:", group_total.tolist())
+print("앞 두 비율:", share.head(2).tolist())
+print("남은 ID:", kept["event_id"].tolist())</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>그룹 합계: [50, 50, 62, 62, 50, 24, 24, 62]
+앞 두 비율: [0.24, 0.36]
+남은 ID: [1, 2, 3, 4, 5, 8]</pre></div></div></div></div></section>
+<section class="slide pivot-table" data-slide-id="pivot-table" data-title="두 범주를 행과 열로 배치하는 피벗 테이블">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>07 / 21</span></div><div class="slide-foot"><span>두 범주를 행과 열로 배치하는 피벗 테이블</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">07 · PANDAS</p><h2>두 범주를 행과 열로 배치하는 피벗 테이블</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>범주와 판매 경로의 교차 요약</h3><ul class="dash"><li><code>values</code>는 더할 값, <code>index</code>는 행 범주, <code>columns</code>는 열 범주를 지정한다.</li><li>기본 집계는 평균이다. <code>aggfunc="sum"</code>은 같은 범주·경로 조합에 속하는 모든 거래의 매출을 더한다.</li><li>결과의 한 셀은 특정 범주와 특정 판매 경로가 만나는 매출 합계다.</li></ul></article><article class="panel"><h3>합계와 기본 평균의 차이</h3><ul class="dash"><li>drink×web 입력은 <code>[12,20]</code>이다. 기본 평균은 <code>16</code>, 매출 합계는 <code>32</code>이므로 보고 목적에 맞춰 집계를 지정한다. margins=True를 추가하면 All 행·열에 주변 합계를 표시한다. 범주 50·62·24, 경로 65·71의 총합은 136이다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>matrix = sales.pivot_table(
+    values="sales",
+    index="category_clean",
+    columns="channel",
+    aggfunc="sum",
+)
+print(matrix)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>channel         store  web
+category_clean            
+drink              18   32
+food               37   25
+snack              10   14</pre></div></div></div></div></section>
+<section class="slide string-split" data-slide-id="string-split" data-title="문자열 분해와 결측을 포함한 조건"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>08 / 21</span></div><div class="slide-foot"><span>문자열 분해와 결측을 포함한 조건</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">08 · PANDAS</p><h2>문자열 분해와 결측을 포함한 조건</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>상품과 태그를 별도 열로 분해</h3><ul class="dash"><li><code>split("|", expand=True)</code>는 구분자 양쪽을 별도 열로 만든다. 기본 <code>False</code>는 한 셀에 리스트를 반환한다.</li><li>이 입력은 구분자가 한 개다. 두 열에 item·tag 이름을 붙이며 결측은 두 열 모두 &lt;NA&gt;로 남는다.</li></ul></article><article class="panel"><h3>부분 일치와 정확한 태그의 차이</h3><ul class="dash"><li><code>contains</code>는 부분 문자열 검사다. <code>case=False</code>는 대소문자 무시, <code>na=False</code>는 결측을 미일치로 정한다.</li><li>앞 5행에서 HOT와 hot은 참, 결측은 거짓이다. 단, hotdog|cold도 부분 일치는 참이다.</li><li>태그만 찾으려면 분해한 tag를 소문자로 바꿔 <code>== "hot"</code>으로 비교한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>tags = sales["item_tag"].astype("string")
+parsed = tags.str.split("|", expand=True)
+parsed.columns = ["item", "tag"]
+hot = tags.str.contains("hot", case=False, na=False)
+print(parsed.head().to_string(index=False))
+print(hot.head().tolist())</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>    item  tag
+   Latte  HOT
+     Tea iced
+Sandwich cold
+    Soup  hot
+    &lt;NA&gt; &lt;NA&gt;
+[True, False, False, True, False]</pre></div></div></div></div></section>
+<section class="slide time-value-types" data-slide-id="time-value-types" data-title="시점·기간·간격과 시간 격자"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>09 / 21</span></div><div class="slide-foot"><span>시점·기간·간격과 시간 격자</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">09 · PANDAS</p><h2>시점·기간·간격과 시간 격자</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>시간값의 세 가지 의미</h3><ul class="dash"><li><code>Timestamp</code>는 한 시점, <code>Period</code>는 한 달 같은 기간, <code>Timedelta</code>는 이틀 같은 시간 간격이다.</li><li>2월 1일 09:30에 이틀을 더하면 2월 3일 09:30이다. 월 기간은 2월 전체를 가리킨다.</li></ul></article><article class="panel"><h3>예상 시점의 목록 생성</h3><ul class="dash"><li><code>date_range</code>에 시작일, <code>periods=3</code>(개수), <code>freq="D"</code>(하루 간격)를 지정한다.</li><li>3월 1·2·3일 격자를 만든다. 정기 관측과 달리 불규칙 거래에서는 빈 날짜가 곧 기록 누락은 아니다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>stamp = pd.Timestamp("2026-02-01 09:30")
+period = pd.Period("2026-02", freq="M")
+delta = pd.Timedelta(days=2)
+days = pd.date_range("2026-03-01", periods=3, freq="D")
+print(stamp + delta)
+print(period)
+print(days.strftime("%Y-%m-%d").tolist())</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>2026-02-03 09:30:00
+2026-02
+['2026-03-01', '2026-03-02', '2026-03-03']</pre></div></div></div></div></section>
+<section class="slide to-datetime" data-slide-id="to-datetime" data-title="날짜 변환과 실패·결측 검사"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>10 / 21</span></div><div class="slide-foot"><span>날짜 변환과 실패·결측 검사</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">10 · PANDAS</p><h2>날짜 변환과 실패·결측 검사</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>문자열을 계산 가능한 시점으로 변환</h3><ul class="dash"><li><code>to_datetime</code>은 날짜 문자열을 시점으로 바꾼다. 거래 시점을 변환하고 결측이 없는지 확인한다.</li><li>기본 <code>errors="raise"</code>는 잘못된 날짜에서 중단한다. <code>coerce</code>는 변환 실패를 시간 결측 <code>NaT</code>로 만들어 조사하게 한다.</li></ul></article><article class="panel"><h3>중단과 조사는 목적에 따른 대안</h3><ul class="dash"><li>2월 30일은 존재하지 않아 coerce 결과가 NaT다. <code>isna().sum()</code>은 결측 개수를 센다.</li><li>raise도 원래 결측은 NaT로 반환할 수 있다. 날짜가 필수라면 변환 후 결측 검사도 필요하다.</li><li>두 번 변환이 필수는 아니다. NaT를 발견했다고 검증이 끝난 것도 아니며 원자료를 조사해야 한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>sales["occurred_at"] = pd.to_datetime(sales["occurred_at"])
+assert sales["occurred_at"].notna().all()
+probe = pd.Series(["2026-02-28", "2026-02-30"])
+checked = pd.to_datetime(probe, errors="coerce")
+print(checked)
+print("invalid:", checked.isna().sum())</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>0   2026-02-28
+1          NaT
+dtype: datetime64[ns]
+invalid: 1</pre></div></div></div></div></section>
+<section class="slide datetime-index" data-slide-id="datetime-index" data-title="시간 범위 선택 기준인 DatetimeIndex">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>11 / 21</span></div><div class="slide-foot"><span>시간 범위 선택 기준인 DatetimeIndex</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">11 · PANDAS</p><h2>시간 범위 선택 기준인 DatetimeIndex</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>시점 열을 정렬된 인덱스로</h3><ul class="dash"><li><code>.set_index("occurred_at")</code>은 거래 시점을 행 선택 기준으로 만들고 <code>.sort_index()</code>는 시간 순서를 보장한다.</li><li>부분 문자열 <code>"2026-02"</code>는 2월 시작부터 끝까지의 시점을 포함한다.</li><li>결과 3행의 매출 <code>15 + 20 + 10 = 45</code>가 2월 월별 집계의 입력이다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>ts = sales.set_index("occurred_at").sort_index()
+print(type(ts.index).__name__)
+print(ts.loc["2026-02", ["event_id", "sales"]])</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>DatetimeIndex
+                     event_id  sales
+occurred_at                         
+2026-02-01 08:00:00         4     15
+2026-02-14 12:00:00         5     20
+2026-02-28 18:00:00         6     10</pre></div></div></div></div></section>
+<section class="slide resample" data-slide-id="resample" data-title="같은 시간 구간의 관측을 요약하는 resample">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>12 / 21</span></div><div class="slide-foot"><span>같은 시간 구간의 관측을 요약하는 resample</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">12 · PANDAS</p><h2>같은 시간 구간의 관측을 요약하는 resample</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>월 시작 간격으로 매출 합계 만들기</h3><ul class="dash"><li><code>.resample("MS")</code>는 <code>DatetimeIndex</code>의 시점을 월 시작 기준 구간으로 나눈다. MS는 월 시작이다. 1월 구간은 1월 1일 이상·2월 1일 미만이며 결과 라벨은 1월 1일이다.</li><li><code>.sum()</code>은 같은 월 구간의 거래를 더하고 결과 인덱스를 각 달의 시작일로 표시한다.</li><li>1월 55, 2월 45, 3월 36을 더한 136이 원자료 합계와 일치한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>monthly = ts["sales"].resample("MS").sum()
+print(monthly)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>occurred_at
+2026-01-01    55
+2026-02-01    45
+2026-03-01    36
+Freq: MS, Name: sales, dtype: int64</pre></div></div></div></div></section>
+<section class="slide resample-vs-asfreq" data-slide-id="resample-vs-asfreq" data-title="resample의 구간 집계와 asfreq의 격자 선택">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>13 / 21</span></div><div class="slide-foot"><span>resample의 구간 집계와 asfreq의 격자 선택</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">13 · PANDAS</p><h2>resample의 구간 집계와 asfreq의 격자 선택</h2></div><div class="body-grid"><div class="panel-stack"><article class="panel"><h3>같은 3일 입력의 다른 결과</h3><ul class="dash"><li><code>resample("2D").sum()</code>은 1·2일을 한 구간으로 묶어 <code>12 + 20 = 32</code>를 만든다.</li><li><code>asfreq("2D")</code>는 1일과 3일의 기존 관측만 선택하므로 값은 12와 18이다.</li><li>구간 통계가 필요하면 <code>resample</code>, 달라진 시간 격자의 관측값이 필요하면 <code>asfreq</code>를 쓴다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>daily = pd.Series(
+    [12, 20, 18],
+    index=pd.to_datetime(["2026-03-01", "2026-03-02", "2026-03-03"]),
+)
+print(daily.resample("2D").sum())
+print(daily.asfreq("2D"))</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>2026-03-01    32
+2026-03-03    18
+Freq: 2D, dtype: int64
+2026-03-01    12
+2026-03-03    18
+Freq: 2D, dtype: int64</pre></div></div></div></div></section>
+<section class="slide fill-direction" data-slide-id="fill-direction" data-title="빈 시간 칸의 채우기 방향과 가정">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>14 / 21</span></div><div class="slide-foot"><span>빈 시간 칸의 채우기 방향과 가정</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">14 · PANDAS</p><h2>빈 시간 칸의 채우기 방향과 가정</h2></div><div class="body-grid"><div class="panel-stack"><article class="panel"><h3>앞값 채우기와 뒤값 채우기</h3><ul class="dash"><li><code>asfreq("D")</code>는 3월 2일 칸을 만들고 관측이 없으므로 <code>NaN</code>을 둔다.</li><li><code>ffill</code>은 직전 12가 유지됐다고, <code>bfill</code>은 다음 18을 앞당겨 쓸 수 있다고 가정한다.</li><li>실제 매출 미발생과 기록 누락은 다르므로 두 방법 중 하나를 자동 선택하면 안 된다. fillna(0)은 앞·뒤값 채우기와 달리 빈 칸을 0으로 가정한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>sparse = pd.Series(
+    [12, 18],
+    index=pd.to_datetime(["2026-03-01", "2026-03-03"]),
+).asfreq("D")
+print(pd.DataFrame({
+    "raw": sparse, "ffill": sparse.ffill(), "bfill": sparse.bfill()
+}))</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>             raw  ffill  bfill
+2026-03-01  12.0   12.0   12.0
+2026-03-02   NaN   12.0   18.0
+2026-03-03  18.0   18.0   18.0</pre></div></div></div></div></section>
+<section class="slide shift" data-slide-id="shift" data-title="직전 값 비교와 두 관측 이동 평균"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>15 / 21</span></div><div class="slide-foot"><span>직전 값 비교와 두 관측 이동 평균</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">15 · PANDAS</p><h2>직전 값 비교와 두 관측 이동 평균</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>shift: 같은 행에 직전 값 배치</h3><ul class="dash"><li><code>shift(1)</code>은 인덱스를 유지하고 값을 한 행 아래로 옮긴다. <code>shift(-1)</code>은 다음 값을 가져온다.</li><li>변화량은 2월 <code>45−55=−10</code>, 3월 <code>36−45=−9</code>다. 첫 달은 비교 대상이 없어 NaN이다.</li></ul></article><article class="panel"><h3>rolling: 창 안의 값을 요약</h3><ul class="dash"><li><code>rolling(2).mean()</code>은 현재·직전 행 평균이다. 기본 <code>min_periods=2</code>, <code>center=False</code>로 두 값이 필요하다.</li><li>2월 <code>(55+45)/2=50</code>, 3월 <code>(45+36)/2=40.5</code>다. 첫 NaN을 0으로 채우지 않는다.</li><li>이 표는 매달 한 행이라 두 행이 두 달이다. 불규칙한 거래 두 행은 두 달을 뜻하지 않는다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>change = pd.DataFrame({"sales": monthly})
+change["previous"] = monthly.shift(1)
+change["change"] = monthly - change["previous"]
+change["rolling_2"] = monthly.rolling(2).mean()
+print(change)</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>             sales  previous  change  rolling_2
+occurred_at                                    
+2026-01-01      55       NaN     NaN        NaN
+2026-02-01      45      55.0   -10.0       50.0
+2026-03-01      36      45.0    -9.0       40.5</pre></div></div></div></div></section>
+<section class="slide query" data-slide-id="query" data-title="문자열 식으로 행 선택과 열 계산"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>16 / 21</span></div><div class="slide-foot"><span>문자열 식으로 행 선택과 열 계산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">16 · PANDAS</p><h2>문자열 식으로 행 선택과 열 계산</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>query: 조건에 맞는 행 선택</h3><ul class="dash"><li><code>query</code>의 식에서 열 이름은 그대로 쓴다. <code>@threshold</code>는 바깥 Python 변수 15를 참조한다.</li><li>매출 15 이상이면서 web인 거래는 ID 3·5다.</li></ul></article><article class="panel"><h3>eval: 열 이름으로 계산식 작성</h3><ul class="dash"><li><code>eval</code>의 식은 매출/수량을 단가 열에 넣는다. 이 호출은 원본을 바꾸지 않고 새 표를 반환한다.</li><li>앞 세 단가는 12·9·12.5다. <code>np.allclose</code>로 일반 열 연산과 허용오차 안에서 같은지 검사한다.</li><li>allclose는 값 비교다. 인덱스·열 이름까지 같다는 보장은 아니다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>threshold = 15
+selected = sales.query('sales &gt;= @threshold and channel == "web"')
+with_price = sales.eval("unit_price = sales / units")
+expected = sales["sales"] / sales["units"]
+print("선택 ID:", selected["event_id"].tolist())
+print("앞 세 단가:", with_price["unit_price"].head(3).tolist())
+print(np.allclose(with_price["unit_price"], expected))</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>선택 ID: [3, 5]
+앞 세 단가: [12.0, 9.0, 12.5]
+True</pre></div></div></div></div></section>
+<section class="slide eval-query-performance" data-slide-id="eval-query-performance" data-title="큰 중간 배열에서의 eval·query 선택 조건">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>17 / 21</span></div><div class="slide-foot"><span>큰 중간 배열에서의 eval·query 선택 조건</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">17 · PANDAS</p><h2>큰 중간 배열에서의 eval·query 선택 조건</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>중간 배열의 계산 비용</h3><ul class="dash"><li>비교 두 번과 <code>&amp;</code> 결합 한 번으로 bool 배열 3개가 생긴다. 8행이면 배열 데이터는 <code>8+8+8=24</code>바이트다.</li><li>1천만 행이면 같은 세 배열은 30,000,000바이트다. <code>nbytes</code>는 인덱스·문자열 객체·엔진 버퍼를 제외한다.</li><li>이 값은 배열 데이터량이며 query의 실제 절감량이나 최고 메모리를 뜻하지 않는다.</li></ul></article><article class="panel"><h3>동치성 확인 후 선택</h3><ul class="dash"><li>NumExpr는 지원하는 수치식을 작은 묶음으로 계산해 큰 임시 배열을 줄이는 엔진이다. 문자열 비교·결과 행 선택 전체를 처리하지는 않는다.</li><li>8행에서는 일반식도 충분하다. 큰 표에서는 결과가 같은지 확인한 뒤 시간·메모리를 측정해 일반식과 eval·query 중 선택한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>tmp1 = sales["sales"] &gt;= 15
+tmp2 = sales["channel"] == "web"
+mask = tmp1 &amp; tmp2
+print(tmp1.values.nbytes, tmp2.values.nbytes, mask.values.nbytes)</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>8 8 8</pre></div></div></div></div></section>
+<section class="slide dense integrated-pipeline" data-slide-id="integrated-pipeline" data-title="정리·시간화·요약 순서를 기록하는 통합 파이프라인">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>18 / 21</span></div><div class="slide-foot"><span>정리·시간화·요약 순서를 기록하는 통합 파이프라인</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">18 · PANDAS</p><h2>정리·시간화·요약 순서를 기록하는 통합 파이프라인</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>개별 기능에서 전달용 요약표 조립으로 전환</h3><ul class="dash"><li><code>assign</code>은 범주와 시점을 정리하고 <code>set_index</code>·<code>sort_index</code>는 시간 그룹의 기준을 만든다.</li><li><code>pd.Grouper(freq="MS")</code>는 월, <code>category</code>는 범주로 분할하고 <code>sum</code>은 각 조합의 매출을 합친다.</li><li><code>unstack(fill_value=0)</code>은 범주를 열로 옮겨 월×범주 3×3 표를 만든다. 앞의 범주×경로 3×2 표와 축이 다르다.</li></ul></article><article class="panel"><h3>빈 조합과 관측 누락의 구분</h3><ul class="dash"><li>이 예제는 해당 기간의 거래가 모두 수록됐다고 가정한다. 그래서 1월 snack·3월 drink의 미발생 조합을 0으로 둔다. 기록 누락이라면 0으로 단정할 수 없다.</li><li><code>unstack</code>은 (월, 범주) 중 범주를 열로 옮긴다. 1월 drink 합계 30은 같은 값을 유지하며 1월 행·drink 열의 셀로 이동한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>prepared = (
+    sales.assign(
+        category=sales["category"].astype("string").str.strip().str.lower(),
+        occurred_at=pd.to_datetime(sales["occurred_at"], errors="raise"),
+    )
+    .set_index("occurred_at")
+    .sort_index()
+)
+plot_data = (
+    prepared.groupby([pd.Grouper(freq="MS"), "category"])["sales"]
+            .sum().unstack(fill_value=0)
+)
+print(plot_data)</pre></div><div class="codebox text"><div class="code-label">TEXT · 실행 결과</div><pre>category     drink  food   snack
+occurred_at                     
+2026-01-01      30     25      0
+2026-02-01      20     15     10
+2026-03-01       0     22     14</pre></div></div></div></div></section>
+<section class="slide summary-visuals" data-slide-id="summary-visuals" data-title="질문에 따른 동일 요약값의 시각화">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>19 / 21</span></div><div class="slide-foot"><span>질문에 따른 동일 요약값의 시각화</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">19 · PANDAS</p><h2>질문에 따른 동일 요약값의 시각화</h2></div><div class="body-grid image"><div class="panel-stack"><article class="panel"><h3>세 미리보기의 값 연결</h3><ul class="dash"><li>왼쪽 선은 월별 합계 <code>55 → 45 → 36</code>, 가운데 막대는 범주별 합계 <code>50·62·24</code>를 나타낸다.</li><li>오른쪽 색상표는 범주×판매 경로 피벗의 여섯 셀을 색과 숫자로 함께 표시한다.</li><li>선은 시간 변화, 막대는 범주 크기, 색상표는 두 범주의 조합을 비교하는 질문에 대응한다.</li></ul></article><article class="panel"><h3>요약표와 미리보기의 입력 관계</h3><ul class="dash"><li>월별 선은 <code>monthly</code>, 범주별 막대는 <code>totals</code>, 색상표는 <code>matrix</code>를 받는다. 모두 같은 거래 8행에서 나온 보완 자료다.</li><li><code>plot_data</code>는 월×범주 표다. 행 합계 55·45·36, 열 합계 50·62·24는 앞의 두 요약과 일치하지만 판매 경로는 포함하지 않는다.</li></ul></article></div><div class="evidence-stack"><figure class="figure"><img alt="질문에 따른 동일 요약값의 시각화 · 검산된 동일 요약값의 선·막대·색상표" src="assets/figure_week5_summary_previews.png"/><figcaption>검산된 동일 요약값의 선·막대·색상표</figcaption></figure></div></div></div></section>
+<section class="slide invariant-validation" data-slide-id="invariant-validation" data-title="작은 불변량을 이용한 전체 결과 검산">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>20 / 21</span></div><div class="slide-foot"><span>작은 불변량을 이용한 전체 결과 검산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">20 · PANDAS</p><h2>작은 불변량을 이용한 전체 결과 검산</h2></div><div class="body-grid code"><div class="panel-stack"><article class="panel"><h3>검사와 판정 범위</h3><ul class="dash"><li><code>assert</code>는 조건이 거짓이면 중단한다. <code>issubset</code>은 필수 열 포함, <code>is_unique</code>는 ID 중복 없음을 검사한다.</li><li><code>is_monotonic_increasing</code>은 시간 오름차순, <code>hasnans</code>는 시간 결측 유무다. <code>not</code>으로 결측 없음을 요구한다.</li><li><code>to_numpy().tolist()</code>는 표를 행 순서의 값 목록으로 바꾼다. 3×3 모양·합계뿐 아니라 아홉 셀도 기대값과 비교한다.</li></ul></article><article class="panel"><h3>합계가 놓치는 반례</h3><ul class="dash"><li>1월 drink <code>30→31</code>, food <code>25→24</code>이면 총합은 여전히 136이다. 합계 보존만으로 누락·중복·분류 오류가 없다고 단정할 수 없다.</li><li>이 예제의 기대 행렬 비교는 그 오류를 잡는다. 조건이 모두 참이면 성공 문장을 출력하며 실패하면 해당 입력·집계 단계를 조사한다.</li></ul></article></div><div class="evidence-stack"><div class="codebox python"><div class="code-label">분석 노트북 · 순서대로 실행하는 코드 셀</div><pre>required = {"event_id", "occurred_at", "category", "item_tag",
+            "channel", "sales", "units"}
+assert len(sales) == 8
+assert required.issubset(sales.columns)
+assert sales["event_id"].is_unique
+assert prepared.index.is_monotonic_increasing
+assert plot_data.shape == (3, 3)
+assert plot_data.to_numpy().sum() == 136
+assert sales["sales"].sum() == 136
+assert not prepared.index.hasnans
+assert plot_data.to_numpy().tolist() == [
+    [30, 25, 0], [20, 15, 10], [0, 22, 14]
+]
+print("8 rows; 3 x 3; total 136; cells OK")</pre></div><div class="codebox text"><div class="code-label">실행 결과</div><pre>8 rows; 3 x 3; total 136; cells OK</pre></div></div></div></div></section>
+<section class="slide dark end" data-slide-id="summary" data-title="Summary">
+<div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>21 / 21</span></div><div class="slide-foot"><span>Summary</span><span class="counter"></span></div><div class="slide-inner"><p class="eyebrow">데이터 요약과 시계열 처리</p><h2>Summary</h2><div class="takeaways"><div><code>groupby</code>는 키로 분할하고 집계·변환·필터의 서로 다른 출력 계약에 따라 결과를 결합한다.</div><div><code>pivot_table</code>은 두 범주의 집계를 행과 열로 배치하며 주변 합계로 원자료 보존을 검산한다.</div><div>벡터화 문자열 연산은 공백·대소문자·구분자를 같은 규칙으로 처리하고 결측 판정을 명시한다.</div><div>시간값을 변환·정렬한 뒤 <code>resample</code>·<code>asfreq</code>·<code>shift</code>·<code>rolling</code>의 서로 다른 의미를 구분한다.</div><div><code>query</code>·<code>eval</code>은 식의 결과 동치성과 데이터 크기를 확인한 뒤 선택한다.</div><div>구조·키·시간 순서·합계와 셀 값을 검산한 요약표를 선·막대·색상표의 입력으로 사용한다.</div></div></div></section>
+</div><nav id="nav" aria-label="슬라이드 이동"></nav><div id="progress"></div><aside id="overview" aria-hidden="true"><div class="overview-head"><span>SLIDE OVERVIEW · ESC TO CLOSE</span><span>21 SECTIONS</span></div><div class="overview-grid"></div></aside></main></div>
+<script>(function(){const stage=document.getElementById("stage"),slides=[...document.querySelectorAll(".slide")],nav=document.getElementById("nav"),progress=document.getElementById("progress"),overview=document.getElementById("overview"),grid=overview.querySelector(".overview-grid"),key="dataviz-week5-kami-slide";let current=parseInt(localStorage.getItem(key)||"0",10);if(!Number.isFinite(current))current=0;current=Math.max(0,Math.min(slides.length-1,current));function scale(){stage.style.transform="scale("+Math.min(innerWidth/1920,innerHeight/1080)+")"}function show(n){current=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,i)=>s.classList.toggle("active",i===current));[...nav.children].forEach((b,i)=>b.classList.toggle("active",i===current));[...grid.children].forEach((b,i)=>b.classList.toggle("active",i===current));progress.style.width=((current+1)/slides.length*100)+"%";localStorage.setItem(key,String(current));document.title=(current+1)+"/"+slides.length+" · "+slides[current].dataset.title+" · 데이터시각화"}function toggle(force){const open=typeof force==="boolean"?force:!overview.classList.contains("open");overview.classList.toggle("open",open);overview.setAttribute("aria-hidden",String(!open))}slides.forEach((s,i)=>{s.querySelector(".counter").textContent=String(i+1).padStart(2,"0")+" / "+String(slides.length).padStart(2,"0");const dot=document.createElement("button");dot.type="button";dot.setAttribute("aria-label",(i+1)+"번 슬라이드");dot.onclick=()=>show(i);nav.appendChild(dot);const card=document.createElement("button");card.type="button";card.className="overview-card";card.innerHTML="<b>"+String(i+1).padStart(2,"0")+" / "+String(slides.length).padStart(2,"0")+"</b><span>"+slides[i].dataset.title+"</span>";card.onclick=()=>{toggle(false);show(i)};grid.appendChild(card)});addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();toggle();return}if(overview.classList.contains("open"))return;if(["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)){e.preventDefault();show(current+1)}else if(["ArrowLeft","ArrowUp","PageUp"].includes(e.key)){e.preventDefault();show(current-1)}else if(e.key==="Home"){e.preventDefault();show(0)}else if(e.key==="End"){e.preventDefault();show(slides.length-1)}});let wheelLock=false;addEventListener("wheel",e=>{if(wheelLock||overview.classList.contains("open")||Math.abs(e.deltaY)+Math.abs(e.deltaX)<30)return;wheelLock=true;show(current+(e.deltaY+e.deltaX>0?1:-1));setTimeout(()=>wheelLock=false,450)},{passive:true});let tx=0,ty=0;addEventListener("touchstart",e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))show(current+(dx<0?1:-1))},{passive:true});addEventListener("resize",scale);scale();show(current)})();</script></body></html>

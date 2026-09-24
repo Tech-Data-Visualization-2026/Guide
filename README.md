@@ -6,7 +6,10 @@
 
 첫 화면에서 주차를 선택한 뒤 `강의 시작`을 누르면 발표 덱이 열립니다. 주차 선택 화면으로 돌아갈 때는 브라우저의 뒤로 가기를 사용합니다.
 
-현재 공개 범위는 1–4주차입니다.
+현재 공개 범위는 1–5주차입니다.
+
+- [5주차 HTML · 데이터 요약과 시계열 처리](https://tech-data-visualization-2026.github.io/Guide/Lecture_materials/Week5/)
+- [5주차 화면 PDF (21쪽)](https://tech-data-visualization-2026.github.io/Guide/Lecture_materials/Week5/week5-screen.pdf)
 
 ## 강의 화면 조작
 
