@@ -69,23 +69,25 @@ h1,h2{line-height:1.3}
 .slide[data-slide-id="sales-dataframe"] .trace-grid,.slide[data-slide-id="integrated-pipeline"] .trace-grid{grid-template-columns:1.25fr 1.3fr 1fr}
 .slide[data-slide-id="shift"] .trace-grid{grid-template-columns:1fr 1.2fr 1.5fr}
 .slide[data-slide-id="invariant-validation"] .trace-grid{grid-template-columns:1.15fr 1.75fr .65fr}
+
+.slide[data-slide-id="sales-dataframe"] .trace-grid{grid-template-columns:1fr 1.15fr 1.05fr}
+.slide[data-slide-id="to-datetime"] .trace-grid{grid-template-columns:.8fr 1.6fr 1fr}
 </style></head><body><div id="viewport"><main id="stage"><div id="deck">
 <section class="slide dark cover" data-slide-id="outline" data-title="Outline">
 <div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>01 / 21</span></div><div class="slide-foot"><span>Outline</span><span class="counter"></span></div><div class="slide-inner cover-grid"><div><p class="eyebrow">데이터 요약과 시계열 처리</p><h1>Outline</h1><p class="lede">거래 네 건에서 매장 담당자에게 전달할 범주·월별 매출 요약표를 만든다.</p></div><div class="cover-cards"><article class="panel"><h3>입력과 전달물</h3><ul class="dash"><li>전: 1월 drink 10·20, 2월 drink 30·food 40.</li><li>후: 월별 30·70, 범주별 drink 60·food 40.</li></ul></article><article class="panel"><h3>학습 순서</h3><ul class="dash"><li>문자열 정리 → 그룹 요약 → 행·열 교차표 → 시간값 변환과 구간 요약.</li><li>같은 입력의 처리 전후를 비교한 뒤 선택·계산·검산까지 연결한다.</li></ul></article></div></div></section>
-<section class="slide trace" data-slide-id="sales-dataframe" data-title="거래 기록 DataFrame 생성"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>02 / 21</span></div><div class="slide-foot"><span>거래 기록 DataFrame 생성</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">02 · PANDAS</p><h2>거래 기록 DataFrame 생성</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales 생성에 사용할 값</div><table class="mini-table"><thead><tr><th></th><th>occurred_at</th><th>category</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>2026-01-03</td><td>" Drink "</td><td>10</td></tr><tr><td>2</td><td>2026-01-10</td><td>"drink"</td><td>20</td></tr><tr><td>3</td><td>2026-02-01</td><td>"DRINK"</td><td>30</td></tr><tr><td>4</td><td>2026-02-14</td><td>"Food"</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>import pandas as pd
+<section class="slide trace" data-slide-id="sales-dataframe" data-title="거래 기록 DataFrame 생성"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>02 / 21</span></div><div class="slide-foot"><span>거래 기록 DataFrame 생성</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">02 · PANDAS</p><h2>거래 기록 DataFrame 생성</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales 생성에 사용할 값</div><table class="mini-table"><thead><tr><th></th><th>category</th><th>channel</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>" Drink "</td><td>web</td><td>10</td></tr><tr><td>2</td><td>"drink"</td><td>web</td><td>20</td></tr><tr><td>3</td><td>"DRINK"</td><td>store</td><td>30</td></tr><tr><td>4</td><td>"Food"</td><td>store</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>import pandas as pd
 import numpy as np
 sales = pd.DataFrame({
- "category": [" Drink ", "drink", "DRINK", "Food"],
- "sales": [10, 20, 30, 40],
+ "category": [" Drink ", "drink",
+              "DRINK", "Food"],
  "channel": ["web", "web", "store", "store"],
- "occurred_at": ["2026-01-03", "2026-01-10",
-                 "2026-02-01", "2026-02-14"],
+ "sales": [10, 20, 30, 40],
 }, index=[1, 2, 3, 4])
-print(sales[["sales", "channel"]])</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>sales channel
-1     10     web
-2     20     web
-3     30   store
-4     40   store</pre></div></div><div class="explain-grid"><article class="panel"><h3>거래 한 건이 한 행</h3><ul class="dash"><li>이름 없는 행 인덱스 1–4가 거래 ID다. occurred_at은 시점, category는 범주, sales는 매출(천 원), channel은 판매 경로다.</li><li>공백·대소문자가 다른 세 표기는 모두 음료 범주다. 정리한 뒤 합친다.</li></ul></article><article class="panel"><h3>표 생성과 전달 목표</h3><ul class="dash"><li>pd는 pandas, np는 NumPy의 별칭이다. {열 이름: 값 목록}으로 네 열을 만들고 index로 행 이름을 붙인다.</li><li>두 달의 전체 거래가 모두 수록됐다고 가정한다. 총매출 100을 범주·월별 요약표로 전달한다.</li></ul></article></div></div></section>
+print(sales)</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>category channel  sales
+1   Drink      web     10
+2    drink     web     20
+3    DRINK   store     30
+4     Food   store     40</pre></div></div><div class="explain-grid"><article class="panel"><h3>거래 한 건이 한 행</h3><ul class="dash"><li>이름 없는 행 인덱스 1–4가 거래 ID다. category는 범주, channel은 판매 경로, sales는 매출(천 원)이다.</li><li>공백·대소문자가 다른 세 표기는 모두 음료 범주다. 정리한 뒤 합친다.</li></ul></article><article class="panel"><h3>표 생성과 전달 목표</h3><ul class="dash"><li>pd는 pandas, np는 NumPy의 별칭이다. {열 이름: 값 목록}으로 세 열을 만들고 index로 행 이름을 붙인다.</li><li>총매출 100을 범주·경로별로 요약한다. 날짜 열은 시간 처리를 시작할 때 추가한다.</li></ul></article></div></div></section>
 <section class="slide trace" data-slide-id="category-cleaning" data-title="열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>03 / 21</span></div><div class="slide-foot"><span>열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">03 · PANDAS</p><h2>열 전체에 같은 규칙을 적용하는 벡터화 문자열 연산</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 category 열</div><pre>    category
 1   " Drink "
 2   "drink"
@@ -184,18 +186,22 @@ print(period)
 print(days.strftime(&quot;%m-%d&quot;).tolist())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>2026-02-03 09:30:00
 2026-02
 [&#x27;03-01&#x27;, &#x27;03-02&#x27;, &#x27;03-03&#x27;]</pre></div></div><div class="explain-grid"><article class="panel"><h3>시간값의 의미</h3><ul class="dash"><li>Timestamp는 한 시점, Period는 한 달 같은 기간, Timedelta는 시간 간격이다. 시점에 이틀을 더해도 시각 09:30은 유지된다.</li><li>freq=&quot;M&quot;은 여기서 월 기간을 뜻한다. 같은 문자열처럼 보여도 날짜 문자열과 계산 가능한 시간 객체는 다르다.</li></ul></article><article class="panel"><h3>예상 시점의 목록</h3><ul class="dash"><li>date_range는 시작일·개수(periods)·간격(freq)으로 시점 목록을 만든다. D는 하루 간격이다.</li><li>strftime은 날짜의 표시 형식만 바꾼다. %m은 월, %d는 일이다. 빈 날짜가 기록 누락인지 거래 미발생인지는 별도 판단한다.</li></ul></article></div></div></section>
-<section class="slide trace " data-slide-id="to-datetime" data-title="날짜 변환과 실패·결측 검사"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>10 / 21</span></div><div class="slide-foot"><span>날짜 변환과 실패·결측 검사</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">10 · PANDAS</p><h2>날짜 변환과 실패·결측 검사</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 별도 날짜 진단 입력</div><pre>0  &quot;2026-02-28&quot;
-1  &quot;2026-02-30&quot;
-2  원래 결측</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>sales[&quot;occurred_at&quot;] = pd.to_datetime(sales[&quot;occurred_at&quot;])
-assert sales[&quot;occurred_at&quot;].notna().all()
-probe = pd.Series([&quot;2026-02-28&quot;, &quot;2026-02-30&quot;, None])
-checked = pd.to_datetime(probe, errors=&quot;coerce&quot;)
+<section class="slide trace" data-slide-id="to-datetime" data-title="날짜 변환과 실패·결측 검사"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>10 / 21</span></div><div class="slide-foot"><span>날짜 변환과 실패·결측 검사</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">10 · PANDAS</p><h2>날짜 변환과 실패·결측 검사</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · 별도 날짜 진단 입력</div><pre>0  "2026-02-28"
+1  "2026-02-30"
+2  원래 결측</pre></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>sales["occurred_at"] = [
+ "2026-01-03", "2026-01-10",
+ "2026-02-01", "2026-02-14",
+]
+sales["occurred_at"] = pd.to_datetime(sales["occurred_at"])
+assert sales["occurred_at"].notna().all()
+probe = pd.Series(["2026-02-28", "2026-02-30", None])
+checked = pd.to_datetime(probe, errors="coerce")
 print(checked)
-print(&quot;결측:&quot;, checked.isna().sum())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>0   2026-02-28
+print("결측:", checked.isna().sum())</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>0   2026-02-28
 1          NaT
 2          NaT
 dtype: datetime64[ns]
-결측: 2</pre></div></div><div class="explain-grid"><article class="panel"><h3>기본 변환과 조사용 변환</h3><ul class="dash"><li>to_datetime은 문자열을 계산 가능한 시점으로 바꾼다. 공통 sales의 정상 날짜 네 개를 변환하고 notna().all()로 결측 없음을 검사한다.</li><li>별도 probe에서는 존재하지 않는 2월 30일과 원래 결측이 모두 NaT가 된다. NaT는 시간 결측이다.</li></ul></article><article class="panel"><h3>실패와 결측의 구분</h3><ul class="dash"><li>기본 errors=&quot;raise&quot;는 잘못된 날짜에서 중단한다. coerce는 변환 실패를 NaT로 남겨 원자료를 조사하게 한다.</li><li>isna().sum()은 결측 수 2를 센다. raise도 원래 결측은 허용할 수 있으므로 변환 성공과 필수값 검사는 별개다.</li></ul></article></div></div></section>
+결측: 2</pre></div></div><div class="explain-grid"><article class="panel"><h3>기본 변환과 조사용 변환</h3><ul class="dash"><li>시간 처리를 시작하며 occurred_at 열을 추가한다. 목록의 네 날짜는 ID 1–4 순서다. to_datetime으로 시점으로 바꾸고 notna().all()로 결측 없음을 검사한다.</li><li>별도 probe에서는 존재하지 않는 2월 30일과 원래 결측이 모두 NaT가 된다. NaT는 시간 결측이다.</li></ul></article><article class="panel"><h3>실패와 결측의 구분</h3><ul class="dash"><li>기본 errors="raise"는 잘못된 날짜에서 중단한다. coerce는 변환 실패를 NaT로 남겨 원자료를 조사하게 한다.</li><li>isna().sum()은 결측 수 2를 센다. raise도 원래 결측은 허용할 수 있으므로 변환 성공과 필수값 검사는 별개다.</li></ul></article></div></div></section>
 <section class="slide trace" data-slide-id="datetime-index" data-title="시간 범위 선택 기준인 DatetimeIndex"><div class="chrome"><span class="brand"><span class="mark">視</span> 데이터시각화</span><span>11 / 21</span></div><div class="slide-foot"><span>시간 범위 선택 기준인 DatetimeIndex</span><span class="counter"></span></div><div class="slide-inner"><div class="title-block"><p class="section-num">11 · PANDAS</p><h2>시간 범위 선택 기준인 DatetimeIndex</h2></div><div class="trace-grid"><div class="codebox text"><div class="code-label">전 · sales의 시점 열 · 2026년</div><table class="mini-table"><thead><tr><th></th><th>occurred_at</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>2026-01-03</td><td>10</td></tr><tr><td>2</td><td>2026-01-10</td><td>20</td></tr><tr><td>3</td><td>2026-02-01</td><td>30</td></tr><tr><td>4</td><td>2026-02-14</td><td>40</td></tr></tbody></table></div><div class="codebox python"><div class="code-label">연산 · 분석 노트북 셀</div><pre>ts = sales.set_index("occurred_at").sort_index()
 print(type(ts.index).__name__)
 print(ts.loc["2026-02", ["sales"]])</pre></div><div class="codebox text"><div class="code-label">후 · 실제 실행 결과</div><pre>DatetimeIndex
