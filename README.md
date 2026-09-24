@@ -9,7 +9,7 @@
 현재 공개 범위는 1–5주차입니다.
 
 - [5주차 HTML · 데이터 요약과 시계열 처리](https://tech-data-visualization-2026.github.io/Guide/Lecture_materials/Week5/)
-- [5주차 화면 PDF (21쪽)](https://tech-data-visualization-2026.github.io/Guide/Lecture_materials/Week5/week5-screen.pdf)
+- [5주차 화면 PDF (19쪽)](https://tech-data-visualization-2026.github.io/Guide/Lecture_materials/Week5/week5-screen.pdf)
 
 ## 강의 화면 조작
 
