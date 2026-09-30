@@ -1,0 +1,5 @@
+event_id,occurred_at,category,channel,sales
+1,2026-01-03, Drink ,web,10
+2,2026-01-10,drink,web,20
+3,2026-02-01,DRINK,store,30
+4,2026-02-14,Food,store,40

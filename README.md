@@ -10,6 +10,11 @@
 
 - [5주차 HTML · 데이터 요약과 시계열 처리](https://tech-data-visualization-2026.github.io/Guide/Lecture_materials/Week5/)
 
+## 실습자료
+
+- [5주차 · 거래 기록의 범주·월별 매출 요약](Week05/practice/README.md)
+- [5주차 예제 데이터 · sales.csv](Week05/practice/sales.csv)
+
 ## 강의 화면 조작
 
 슬라이드를 연 뒤 `F` 키를 누르면 전체화면 강의를 시작할 수 있습니다.
